@@ -224,7 +224,7 @@ height: 360px
 ```
 
 ---
-<!-- _class: scale-70 -->
+<!-- _class: scale-60 -->
 
 # Pie chart: parts of a whole (use sparingly!)
 
