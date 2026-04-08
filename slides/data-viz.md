@@ -224,7 +224,7 @@ height: 360px
 ```
 
 ---
-<!-- _class: scale-80 -->
+<!-- _class: scale-70 -->
 
 # Pie chart: parts of a whole (use sparingly!)
 
@@ -239,13 +239,13 @@ height: 350px
 
 <div class="warning-box" data-title="Pie charts are controversial">
 
-Humans are bad at comparing **angles and areas**. Bar charts are almost always more readable. Use pie charts only when you have **few categories** (≤5) and want to emphasize that they **sum to 100%**.
+Humans are bad at comparing **angles and areas**. Bar charts are almost always more readable. Popular in some contexts (e.g., business presentations) but generally not recommended for scientific communication.
 
 </div>
 
 ---
 
-# Doughnut chart: an alternative to pie (with many of the same issues)
+# Doughnut [chart]: a slightly better alternative to pie
 
 ```chart
 type: doughnut
@@ -275,7 +275,7 @@ Color intensity encodes magnitude. Great for showing regional variation — but 
 
 <div class="note-box" data-title="Hans Rosling's Gapminder">
 
-This famous visualization — popularized by [Hans Rosling](https://www.gapminder.org/) — shows how life expectancy and GDP per capita have changed across countries from 1952 to 2007. Bubble size = population; color = continent.
+This famous visualization — popularized by [Hans Rosling](https://www.gapminder.org/) — shows how life expectancy and GDP per capita have changed across countries from 1952 to 2007. Bubble size denotes population; color denotes continent, time denotes the year.
 
 </div>
 
@@ -321,9 +321,9 @@ Deaths clustered around the Broad Street pump — disproving the "miasma" theory
 
 <p style="text-align: center;"><img src="figs/minard_napoleon.svg" style="width: 75%; max-width: 850px;"></p>
 
-<div class="tip-box" data-title="&quot;The best statistical graphic ever drawn&quot;">
+<div class="tip-box" data-title="An amazingly high data-to-ink ratio">
 
-Six variables in one image: army size, location, direction, temperature, latitude, and longitude. — [Edward Tufte](https://www.edwardtufte.com/tufte/posters)
+Six variables in one image: army size, location, direction, temperature, latitude, and longitude. — ["&quot;The best statistical graphic ever drawn&quot;"](https://www.edwardtufte.com/tufte/posters) according to Edward Tufte.
 
 </div>
 
