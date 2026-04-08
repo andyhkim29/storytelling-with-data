@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" font-family="Avenir, Helvetica, sans-serif">
+  <!-- Background -->
+  <rect width="900" height="420" fill="none"/>
+
+  <!-- Layer boxes - stacked from bottom to top -->
+  <!-- Theme layer (bottom) -->
+  <rect x="100" y="340" width="700" height="50" rx="8" fill="#8a6996" opacity="0.15" stroke="#8a6996" stroke-width="1.5"/>
+  <text x="450" y="370" text-anchor="middle" font-size="15" font-weight="600" fill="#8a6996">Theme</text>
+  <text x="450" y="385" text-anchor="middle" font-size="11" fill="#666">fonts, backgrounds, legends, styling</text>
+
+  <!-- Coordinates -->
+  <rect x="120" y="280" width="660" height="50" rx="8" fill="#643c20" opacity="0.12" stroke="#643c20" stroke-width="1.5"/>
+  <text x="450" y="310" text-anchor="middle" font-size="15" font-weight="600" fill="#643c20">Coordinates</text>
+  <text x="450" y="325" text-anchor="middle" font-size="11" fill="#666">Cartesian, polar, geographic</text>
+
+  <!-- Statistics -->
+  <rect x="140" y="220" width="620" height="50" rx="8" fill="#ffa00f" opacity="0.18" stroke="#ffa00f" stroke-width="1.5"/>
+  <text x="450" y="250" text-anchor="middle" font-size="15" font-weight="600" fill="#c47800">Statistics</text>
+  <text x="450" y="265" text-anchor="middle" font-size="11" fill="#666">summaries, smoothing, binning</text>
+
+  <!-- Facets -->
+  <rect x="160" y="160" width="580" height="50" rx="8" fill="#9d162e" opacity="0.15" stroke="#9d162e" stroke-width="1.5"/>
+  <text x="450" y="190" text-anchor="middle" font-size="15" font-weight="600" fill="#9d162e">Facets</text>
+  <text x="450" y="205" text-anchor="middle" font-size="11" fill="#666">subplots, panels, small multiples</text>
+
+  <!-- Geometries -->
+  <rect x="180" y="100" width="540" height="50" rx="8" fill="#267aba" opacity="0.15" stroke="#267aba" stroke-width="1.5"/>
+  <text x="450" y="130" text-anchor="middle" font-size="15" font-weight="600" fill="#267aba">Geometries</text>
+  <text x="450" y="145" text-anchor="middle" font-size="11" fill="#666">points, bars, lines, areas</text>
+
+  <!-- Aesthetics -->
+  <rect x="200" y="40" width="500" height="50" rx="8" fill="#00693e" opacity="0.15" stroke="#00693e" stroke-width="1.5"/>
+  <text x="450" y="70" text-anchor="middle" font-size="15" font-weight="600" fill="#00693e">Aesthetics</text>
+  <text x="450" y="85" text-anchor="middle" font-size="11" fill="#666">position, color, size, shape → data mappings</text>
+
+  <!-- Data (top) -->
+  <rect x="250" y="2" width="400" height="30" rx="6" fill="#00693e" stroke="#00693e" stroke-width="2"/>
+  <text x="450" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="white">Data</text>
+
+  <!-- Connecting arrows on left -->
+  <line x1="80" y1="17" x2="80" y2="365" stroke="#424141" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="80,370 76,358 84,358" fill="#424141"/>
+  <text x="70" y="200" text-anchor="middle" font-size="12" fill="#424141" transform="rotate(-90, 70, 200)">Layers build up from data</text>
+</svg>
