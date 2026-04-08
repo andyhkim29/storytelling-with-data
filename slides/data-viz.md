@@ -181,13 +181,7 @@ height: 380px
 
 # Heatmap: showing magnitude in a matrix
 
-<p style="text-align: center;"><img src="figs/heatmap.svg" style="width: 55%; max-width: 600px; display: inline-block; vertical-align: top;"><img src="figs/heatmap_corr.png" style="width: 35%; max-width: 400px; display: inline-block; vertical-align: top;"></p>
-
-<div class="note-box" data-title="Color encodes value">
-
-Left: library visits by day and time. Right: correlation matrix. Both use color intensity instead of numbers — revealing patterns at a glance.
-
-</div>
+<p style="text-align: center;"><img src="figs/heatmap_large.png" style="width: 80%; max-width: 900px;"></p>
 
 ---
 
@@ -230,7 +224,6 @@ height: 360px
 ```
 
 ---
-
 <!-- _class: scale-80 -->
 
 # Pie chart: parts of a whole (use sparingly!)
@@ -264,27 +257,11 @@ height: 400px
 ```
 
 ---
-
-# Radar chart: comparing profiles across dimensions
-
-```chart
-type: radar
-labels: Math, Reading, Science, Writing, History, Art
-datasets:
-  - label: Student A
-    data: 85, 72, 90, 68, 75, 82
-  - label: Student B
-    data: 65, 88, 70, 92, 80, 76
-palette: cdl
-caption: Two students with different academic profiles
-height: 400px
-```
-
----
+<!-- _class: scale-80 -->
 
 # Choropleth map: coloring regions by value
 
-<p style="text-align: center;"><img src="figs/choropleth.png" style="width: 85%; max-width: 1000px;"></p>
+<p style="text-align: center;"><img src="figs/choropleth.png" style="width: 80%; max-width: 950px;"></p>
 
 <div class="note-box" data-title="Life expectancy by country (2007)">
 
@@ -305,21 +282,22 @@ This famous visualization — popularized by [Hans Rosling](https://www.gapminde
 ![height:380px](figs/gapminder.gif)
 
 ---
+<!-- _class: scale-80 -->
 
 # Network graph: showing connections between entities
 
-<p style="text-align: center;"><img src="figs/network_graph.svg" style="width: 90%; max-width: 1050px;"></p>
+<p style="text-align: center;"><img src="figs/network_graph.svg" style="width: 85%; max-width: 1000px;"></p>
 
 ---
 <!-- _class: scale-70 -->
 
 # Nightingale's rose diagram (1858)
 
-<p style="text-align: center;"><img src="figs/nightingale_rose.svg" style="width: 45%; max-width: 480px;"></p>
+<p style="text-align: center;"><img src="figs/nightingale_rose.svg" style="width: 42%; max-width: 450px;"></p>
 
-<div class="note-box" data-title="Preventable deaths in the Crimean War">
+<div class="note-box" data-title="Data visualization can save lives!">
 
-Blue = preventable diseases; red = wounds. Nightingale's chart convinced the army to prioritize sanitation — saving thousands of lives.
+Nightingale's chart convinced the British army to prioritize sanitation — saving thousands of lives.
 
 </div>
 
@@ -341,11 +319,11 @@ Deaths clustered around the Broad Street pump — disproving the "miasma" theory
 
 # Minard's map of Napoleon's Russian campaign (1869)
 
-![width:1100px](figs/minard_napoleon.svg)
+<p style="text-align: center;"><img src="figs/minard_napoleon.svg" style="width: 85%; max-width: 950px;"></p>
 
-<div class="tip-box" data-title="&quot;The best statistical graphic ever drawn&quot; — Edward Tufte">
+<div class="tip-box" data-title="&quot;The best statistical graphic ever drawn&quot;">
 
-Six variables in one image: army size, location, direction, temperature, latitude, and longitude. The army shrank from 422,000 to 10,000.
+[Edward Tufte](https://www.edwardtufte.com/tufte/posters) — six variables in one image: army size, location, direction, temperature, latitude, and longitude.
 
 </div>
 
@@ -365,13 +343,13 @@ Mendeleev's arrangement revealed patterns in chemical properties — and predict
 ---
 <!-- _class: scale-70 -->
 
-# Dimensionality reduction: brain activity organized by cognitive function
+# Radar plots: visualize many dimensions at once
 
 <p style="text-align: center;"><img src="figs/neurosynth_by_component.png" style="width: 75%; max-width: 900px;"></p>
 
-<div class="note-box" data-title="Owen et al., 2021">
+<div class="note-box" data-title="Owen et al., 2024">
 
-Each point represents a brain activation pattern; color indicates cognitive domain. Dimensionality reduction reveals how different mental processes cluster and overlap.
+Each point represents a brain activation pattern; color indicates cognitive domain. Dimensionality reduction reveals how different mental processes cluster and overlap. [Paper](https://www.pnas.org/doi/10.1073/pnas.2400082121)
 
 </div>
 
