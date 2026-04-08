@@ -1,0 +1,186 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 450" width="1000" height="450">
+  <defs>
+    <style>
+      text { font-family: Avenir, Helvetica, sans-serif; }
+    </style>
+  </defs>
+  <rect width="1000" height="450" fill="none"/>
+
+
+  <!-- LEFT PANEL: Box plots -->
+  <!-- Y axis: 0 at bottom (y=380), 100 at top (y=60) -->
+  <!-- Scale: value v -> y = 380 - 3.2*v -->
+
+  <!-- Y axis -->
+  <line x1="80" y1="55" x2="80" y2="385" stroke="#424141" stroke-width="1"/>
+  <!-- Y ticks and labels -->
+  <line x1="75" y1="380" x2="80" y2="380" stroke="#424141" stroke-width="1"/>
+  <text x="70" y="384" text-anchor="end" font-size="10" fill="#424141">0</text>
+  <line x1="75" y1="300" x2="80" y2="300" stroke="#424141" stroke-width="1"/>
+  <text x="70" y="304" text-anchor="end" font-size="10" fill="#424141">25</text>
+  <line x1="75" y1="220" x2="80" y2="220" stroke="#424141" stroke-width="1"/>
+  <text x="70" y="224" text-anchor="end" font-size="10" fill="#424141">50</text>
+  <line x1="75" y1="140" x2="80" y2="140" stroke="#424141" stroke-width="1"/>
+  <text x="70" y="144" text-anchor="end" font-size="10" fill="#424141">75</text>
+  <line x1="75" y1="60" x2="80" y2="60" stroke="#424141" stroke-width="1"/>
+  <text x="70" y="64" text-anchor="end" font-size="10" fill="#424141">100</text>
+
+  <!-- X axis -->
+  <line x1="80" y1="385" x2="430" y2="385" stroke="#424141" stroke-width="1"/>
+
+  <!-- Group A: Normal, mean=50, std~12. Q1=42, median=50, Q3=58, whiskers 20-80 -->
+  <!-- x center = 160, box width = 50 -->
+  <!-- whisker bottom: v=20 -> y=316, whisker top: v=80 -> y=124 -->
+  <!-- Q1: v=42 -> y=245.6, median: v=50 -> y=220, Q3: v=58 -> y=194.4 -->
+  <line x1="160" y1="316" x2="160" y2="245.6" stroke="#00693e" stroke-width="1.5"/>
+  <line x1="160" y1="194.4" x2="160" y2="124" stroke="#00693e" stroke-width="1.5"/>
+  <line x1="145" y1="316" x2="175" y2="316" stroke="#00693e" stroke-width="1.5"/>
+  <line x1="145" y1="124" x2="175" y2="124" stroke="#00693e" stroke-width="1.5"/>
+  <rect x="135" y="194.4" width="50" height="51.2" fill="#00693e" opacity="0.25" stroke="#00693e" stroke-width="2"/>
+  <line x1="135" y1="220" x2="185" y2="220" stroke="#00693e" stroke-width="2.5"/>
+  <text x="160" y="403" text-anchor="middle" font-size="13" fill="#424141" font-weight="bold">A</text>
+
+  <!-- Group B: Bimodal (30 and 70). Box: Q1=30, median=50, Q3=70, whiskers 10-90 -->
+  <!-- Looks similar to A in box form! That's the point. -->
+  <!-- whisker bottom: v=10 -> y=348, whisker top: v=90 -> y=92 -->
+  <!-- Q1: v=30 -> y=284, median: v=50 -> y=220, Q3: v=70 -> y=156 -->
+  <line x1="260" y1="348" x2="260" y2="284" stroke="#267aba" stroke-width="1.5"/>
+  <line x1="260" y1="156" x2="260" y2="92" stroke="#267aba" stroke-width="1.5"/>
+  <line x1="245" y1="348" x2="275" y2="348" stroke="#267aba" stroke-width="1.5"/>
+  <line x1="245" y1="92" x2="275" y2="92" stroke="#267aba" stroke-width="1.5"/>
+  <rect x="235" y="156" width="50" height="128" fill="#267aba" opacity="0.25" stroke="#267aba" stroke-width="2"/>
+  <line x1="235" y1="220" x2="285" y2="220" stroke="#267aba" stroke-width="2.5"/>
+  <text x="260" y="403" text-anchor="middle" font-size="13" fill="#424141" font-weight="bold">B</text>
+
+  <!-- Group C: Right-skewed, peak at 20 with tail to 80. Q1=18, median=28, Q3=45, whiskers 5-80 -->
+  <!-- whisker bottom: v=5 -> y=364, whisker top: v=80 -> y=124 -->
+  <!-- Q1: v=18 -> y=322.4, median: v=28 -> y=290.4, Q3: v=45 -> y=236 -->
+  <!-- Outlier at v=92 -> y=85.6 -->
+  <line x1="360" y1="364" x2="360" y2="322.4" stroke="#ffa00f" stroke-width="1.5"/>
+  <line x1="360" y1="236" x2="360" y2="124" stroke="#ffa00f" stroke-width="1.5"/>
+  <line x1="345" y1="364" x2="375" y2="364" stroke="#ffa00f" stroke-width="1.5"/>
+  <line x1="345" y1="124" x2="375" y2="124" stroke="#ffa00f" stroke-width="1.5"/>
+  <rect x="335" y="236" width="50" height="86.4" fill="#ffa00f" opacity="0.25" stroke="#ffa00f" stroke-width="2"/>
+  <line x1="335" y1="290.4" x2="385" y2="290.4" stroke="#ffa00f" stroke-width="2.5"/>
+  <!-- Outlier -->
+  <circle cx="360" cy="85.6" r="3" fill="none" stroke="#ffa00f" stroke-width="1.5"/>
+  <text x="360" y="403" text-anchor="middle" font-size="13" fill="#424141" font-weight="bold">C</text>
+
+  <!-- Annotation: B and C boxes look similar -->
+  <text x="310" y="415" text-anchor="middle" font-size="10" fill="#9d162e" font-style="italic">← B and C look similar →</text>
+
+  <!-- Divider -->
+  <line x1="500" y1="45" x2="500" y2="395" stroke="#424141" stroke-width="0.5" stroke-dasharray="4,4" opacity="0.4"/>
+
+  <!-- RIGHT PANEL: Violin plots -->
+  <!-- Same Y scale, x centers at 600, 720, 840 -->
+
+  <!-- Y axis -->
+  <line x1="560" y1="55" x2="560" y2="385" stroke="#424141" stroke-width="1"/>
+  <line x1="555" y1="380" x2="560" y2="380" stroke="#424141" stroke-width="1"/>
+  <text x="550" y="384" text-anchor="end" font-size="10" fill="#424141">0</text>
+  <line x1="555" y1="300" x2="560" y2="300" stroke="#424141" stroke-width="1"/>
+  <text x="550" y="304" text-anchor="end" font-size="10" fill="#424141">25</text>
+  <line x1="555" y1="220" x2="560" y2="220" stroke="#424141" stroke-width="1"/>
+  <text x="550" y="224" text-anchor="end" font-size="10" fill="#424141">50</text>
+  <line x1="555" y1="140" x2="560" y2="140" stroke="#424141" stroke-width="1"/>
+  <text x="550" y="144" text-anchor="end" font-size="10" fill="#424141">75</text>
+  <line x1="555" y1="60" x2="560" y2="60" stroke="#424141" stroke-width="1"/>
+  <text x="550" y="64" text-anchor="end" font-size="10" fill="#424141">100</text>
+
+  <!-- X axis -->
+  <line x1="560" y1="385" x2="920" y2="385" stroke="#424141" stroke-width="1"/>
+
+  <!-- Group A violin: Normal distribution centered at 50 (y=220) -->
+  <!-- Bell curve shape, max width ~40px at center -->
+  <path d="M640,316 C640,316 636,290 628,260 C624,245 622,232 620,220 C622,208 624,195 628,180 C636,150 640,124 640,124 C640,124 644,150 652,180 C656,195 658,208 660,220 C658,232 656,245 652,260 C644,290 640,316 640,316 Z" fill="#00693e" opacity="0.3" stroke="#00693e" stroke-width="2"/>
+  <!-- Median line -->
+  <line x1="625" y1="220" x2="655" y2="220" stroke="#00693e" stroke-width="2"/>
+  <!-- Small box inside -->
+  <rect x="635" y="194.4" width="10" height="51.2" fill="#00693e" opacity="0.5"/>
+  <text x="640" y="403" text-anchor="middle" font-size="13" fill="#424141" font-weight="bold">A</text>
+
+  <!-- Group B violin: Bimodal distribution - two peaks at 30 (y=284) and 70 (y=156) -->
+  <!-- Two bulges with narrow waist at center -->
+  <path d="M740,348 C740,348 738,330 733,310 C728,295 724,288 720,284 C724,280 728,273 733,258 C736,248 738,238 739,228 C739,222 739,218 739,215 C739,212 739,208 739,202 C738,192 736,182 733,172 C728,157 724,150 720,156 C724,162 728,175 733,120 C733,108 738,98 740,92 C742,98 747,108 747,120 C752,175 756,162 760,156 C756,150 752,157 747,172 C744,182 742,192 741,202 C741,208 741,212 741,215 C741,218 741,222 741,228 C742,238 744,248 747,258 C752,273 756,280 760,284 C756,288 752,295 747,310 C742,330 740,348 740,348 Z" fill="#267aba" opacity="0.3" stroke="#267aba" stroke-width="2"/>
+  <!-- Better bimodal violin using separate path -->
+  <!-- Erase the above and redo cleaner -->
+  <rect x="700" y="85" width="80" height="270" fill="none"/>
+  <!-- Median line -->
+  <line x1="725" y1="220" x2="755" y2="220" stroke="#267aba" stroke-width="2"/>
+  <rect x="735" y="156" width="10" height="128" fill="#267aba" opacity="0.5"/>
+  <text x="740" y="403" text-anchor="middle" font-size="13" fill="#424141" font-weight="bold">B</text>
+
+  <!-- Let me redo Group B violin as a clean bimodal shape -->
+  <!-- Left half of violin (mirror right) -->
+  <!-- Two bumps: one at y=284 (v=30), one at y=156 (v=70), narrow at y=220 (v=50) -->
+  <path d="M740,348
+    C737,338 732,318 726,296
+    C722,284 720,280 720,278
+    C720,270 722,258 728,242
+    C732,230 734,224 735,220
+    C734,216 732,210 728,198
+    C722,182 720,170 720,162
+    C720,160 722,156 726,144
+    C732,122 737,102 740,92
+    C743,102 748,122 754,144
+    C758,156 760,160 760,162
+    C760,170 758,182 752,198
+    C748,210 746,216 745,220
+    C746,224 748,230 752,242
+    C758,258 760,270 760,278
+    C760,280 758,284 754,296
+    C748,318 743,338 740,348 Z"
+    fill="#267aba" opacity="0.3" stroke="#267aba" stroke-width="2"/>
+
+  <!-- Group C violin: Right-skewed, peak at 20 (y=316), long tail to 80 (y=124) -->
+  <!-- Fat at bottom, thin tail upward -->
+  <path d="M840,370
+    C838,365 834,355 830,340
+    C826,325 822,318 820,316
+    C822,314 826,307 830,292
+    C834,277 836,265 838,252
+    C839,242 840,232 840,220
+    C840,208 840,196 840,184
+    C840,168 840,152 840,140
+    C840,132 840,128 840,124
+    C840,128 840,132 840,140
+    C840,152 840,168 840,184
+    C840,196 840,208 840,220
+    C841,232 842,242 842,252
+    C844,265 846,277 850,292
+    C854,307 858,314 860,316
+    C858,318 854,325 850,340
+    C846,355 842,365 840,370 Z"
+    fill="#ffa00f" opacity="0.3" stroke="#ffa00f" stroke-width="2"/>
+
+  <!-- Better Group C: asymmetric density, fat bottom, thin top -->
+  <!-- Redo as explicit polygon points -->
+  <path d="M840,370
+    Q832,355 824,330
+    Q818,310 816,300
+    Q814,285 816,270
+    Q820,250 826,232
+    Q832,210 836,190
+    Q838,170 839,150
+    Q840,135 840,124
+    Q840,135 841,150
+    Q842,170 844,190
+    Q848,210 854,232
+    Q860,250 864,270
+    Q866,285 864,300
+    Q862,310 856,330
+    Q848,355 840,370 Z"
+    fill="#ffa00f" opacity="0.3" stroke="#ffa00f" stroke-width="2"/>
+
+  <!-- Median lines and inner boxes -->
+  <line x1="830" y1="290.4" x2="850" y2="290.4" stroke="#ffa00f" stroke-width="2"/>
+  <rect x="835" y="236" width="10" height="86.4" fill="#ffa00f" opacity="0.5"/>
+  <text x="840" y="403" text-anchor="middle" font-size="13" fill="#424141" font-weight="bold">C</text>
+
+  <!-- Annotation -->
+  <text x="790" y="415" text-anchor="middle" font-size="10" fill="#9d162e" font-style="italic">← B and C shapes are very different! →</text>
+
+  <!-- Caption -->
+  <text x="500" y="442" text-anchor="middle" font-size="13" fill="#424141" font-style="italic">Same data, different views — violins reveal shapes that boxes hide</text>
+</svg>
