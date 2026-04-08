@@ -50,7 +50,7 @@ These four datasets have **identical** summary statistics (same mean, variance, 
 
 </div>
 
-![width:1150px](figs/anscombes_quartet.svg)
+<p style="text-align: center;"><img src="figs/anscombes_quartet.svg" style="width: 95%; max-width: 1100px;"></p>
 
 ---
 
