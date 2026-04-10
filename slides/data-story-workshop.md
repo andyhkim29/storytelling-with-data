@@ -92,23 +92,33 @@ Your audience came for a **story**, not a statistics lecture. Data should be the
 
 ---
 
-# A masterclass: Hans Rosling
+# Example: Hans Rosling — 200 countries, 200 years, 4 minutes
 
-<div class="example-box" data-title="200 countries, 200 years, 4 minutes">
+<div style="text-align: center;">
 
-Watch how Rosling uses data to tell one of the most compelling stories you'll ever see — the story of global development. Notice:
-
-- He **starts with a question**, not a chart
-- He **narrates the visualization** so you know exactly where to look
-- He uses **surprise** ("No country had...") to keep you hooked
-- He makes the data **personal** and **emotional**
-- He tells a story with a clear **arc** and **resolution**
+[![Hans Rosling: 200 Countries, 200 Years, 4 Minutes](https://img.youtube.com/vi/jbkSRLYSojo/hqdefault.jpg)](https://www.youtube.com/watch?v=jbkSRLYSojo)
 
 </div>
 
-<div style="text-align: center; margin-top: 0.5rem;">
+<div class="example-box" data-title="What to notice">
 
-[![Hans Rosling: 200 Countries, 200 Years, 4 Minutes](https://img.youtube.com/vi/jbkSRLYSojo/hqdefault.jpg)](https://www.youtube.com/watch?v=jbkSRLYSojo)
+He **starts with a question**, not a chart. He **narrates the visualization** so you know where to look. He uses **surprise** to keep you hooked. He makes the data **personal** and **emotional**.
+
+</div>
+
+---
+
+# Example: Powers of Ten (1977)
+
+<div style="text-align: center;">
+
+[![Powers of Ten — Charles and Ray Eames](https://img.youtube.com/vi/0fKBhvDjuy0/hqdefault.jpg)](https://www.youtube.com/watch?v=0fKBhvDjuy0)
+
+</div>
+
+<div class="example-box" data-title="What to notice">
+
+A single, elegant concept — zooming by a factor of 10 every 10 seconds — makes the incomprehensible scale of the universe *feel* real. No charts, no statistics, just **one powerful idea** conveyed through structured visual data.
 
 </div>
 
