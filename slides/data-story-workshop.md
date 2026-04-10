@@ -65,10 +65,10 @@ Data can make your story more powerful in several ways:
 
 The most common mistake: letting data **replace** the story instead of **supporting** it.
 
-- ❌ "Here's a chart. And here's another chart. And here's a table."
-- ❌ Starting with methodology instead of a question
-- ❌ Showing every analysis you ran instead of the one that matters
-- ❌ Reading numbers off a slide
+- "Here's a chart. And here's another chart. And here's a table."
+- Starting with methodology instead of a question
+- Showing every analysis you ran instead of the one that matters
+- Reading numbers off a slide
 
 Your audience came for a **story**, not a statistics lecture. Data should be the *evidence*, not the *plot*.
 
@@ -84,7 +84,7 @@ Your audience came for a **story**, not a statistics lecture. Data should be the
 - **Lead with a question**, not a dataset — "What if I told you that..." is always more engaging than "I downloaded this CSV..."
 - **One chart, one point.** If a visualization doesn't directly support your narrative, cut it.
 - **Narrate the data.** Don't just show a graph — walk the audience through what they should see.
-- **Use surprise.** Find the moment in the data where something unexpected happens, and build your story around *that*.
+- **Use surprise.** Find the moments in the data where something unexpected happens, and build your story around *those*.
 - **Make it personal.** Connect the data to something your audience has experienced.
 - **Less is more.** Three well-chosen data points beat twenty that blur together.
 
@@ -95,15 +95,7 @@ Your audience came for a **story**, not a statistics lecture. Data should be the
 # Example: Hans Rosling — 200 countries, 200 years, 4 minutes
 
 <div style="text-align: center;">
-
-[![Hans Rosling: 200 Countries, 200 Years, 4 Minutes](https://img.youtube.com/vi/jbkSRLYSojo/hqdefault.jpg)](https://www.youtube.com/watch?v=jbkSRLYSojo)
-
-</div>
-
-<div class="example-box" data-title="What to notice">
-
-He **starts with a question**, not a chart. He **narrates the visualization** so you know where to look. He uses **surprise** to keep you hooked. He makes the data **personal** and **emotional**.
-
+<iframe width="800" height="450" src="https://www.youtube.com/embed/jbkSRLYSojo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 ---
@@ -111,15 +103,7 @@ He **starts with a question**, not a chart. He **narrates the visualization** so
 # Example: Powers of Ten (1977)
 
 <div style="text-align: center;">
-
-[![Powers of Ten — Charles and Ray Eames](https://img.youtube.com/vi/0fKBhvDjuy0/hqdefault.jpg)](https://www.youtube.com/watch?v=0fKBhvDjuy0)
-
-</div>
-
-<div class="example-box" data-title="What to notice">
-
-A single, elegant concept — zooming by a factor of 10 every 10 seconds — makes the incomprehensible scale of the universe *feel* real. No charts, no statistics, just **one powerful idea** conveyed through structured visual data.
-
+<iframe width="800" height="450" src="https://www.youtube.com/embed/0fKBhvDjuy0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 ---
