@@ -95,7 +95,7 @@ Your audience came for a **story**, not a statistics lecture. Data should be the
 # Example: Hans Rosling — 200 countries, 200 years, 4 minutes
 
 <div style="text-align: center;">
-<iframe width="800" height="450" src="https://www.youtube.com/embed/jbkSRLYSojo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<a href="https://www.youtube.com/watch?v=jbkSRLYSojo" target="_blank"><img src="https://img.youtube.com/vi/jbkSRLYSojo/maxresdefault.jpg" style="width: 85%; max-width: 900px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);"></a>
 </div>
 
 ---
@@ -103,7 +103,7 @@ Your audience came for a **story**, not a statistics lecture. Data should be the
 # Example: Powers of Ten (1977)
 
 <div style="text-align: center;">
-<iframe width="800" height="450" src="https://www.youtube.com/embed/0fKBhvDjuy0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<a href="https://www.youtube.com/watch?v=0fKBhvDjuy0" target="_blank"><img src="https://img.youtube.com/vi/0fKBhvDjuy0/maxresdefault.jpg" style="width: 85%; max-width: 900px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);"></a>
 </div>
 
 ---
