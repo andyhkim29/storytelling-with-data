@@ -96,11 +96,11 @@ Your audience came for a **story**, not a statistics lecture. Data should be the
 
 ---
 
-# Example: Hans Rosling — 200 countries, 200 years, 4 minutes
+## Hans Rosling — 200 countries, 200 years, 4 minutes
 
 <div style="text-align: center;">
 <div class="yt-player" data-video="jbkSRLYSojo" style="display: inline-block; position: relative; cursor: pointer;">
-<img src="https://img.youtube.com/vi/jbkSRLYSojo/hqdefault.jpg" style="width: 800px; border-radius: 12px;">
+<img src="https://img.youtube.com/vi/jbkSRLYSojo/hqdefault.jpg" style="width: 700px; border-radius: 12px;">
 <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 70px; background: rgba(0,0,0,0.75); border-radius: 18px; display: flex; align-items: center; justify-content: center;">
 <div style="width: 0; height: 0; border-left: 30px solid white; border-top: 18px solid transparent; border-bottom: 18px solid transparent; margin-left: 5px;"></div>
 </div>
@@ -109,11 +109,11 @@ Your audience came for a **story**, not a statistics lecture. Data should be the
 
 ---
 
-# Example: Powers of Ten (1977)
+## Example: Powers of Ten (1977)
 
 <div style="text-align: center;">
 <div class="yt-player" data-video="0fKBhvDjuy0" style="display: inline-block; position: relative; cursor: pointer;">
-<img src="https://img.youtube.com/vi/0fKBhvDjuy0/hqdefault.jpg" style="width: 800px; border-radius: 12px;">
+<img src="https://img.youtube.com/vi/0fKBhvDjuy0/hqdefault.jpg" style="width: 700px; border-radius: 12px;">
 <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 70px; background: rgba(0,0,0,0.75); border-radius: 18px; display: flex; align-items: center; justify-content: center;">
 <div style="width: 0; height: 0; border-left: 30px solid white; border-top: 18px solid transparent; border-bottom: 18px solid transparent; margin-left: 5px;"></div>
 </div>
