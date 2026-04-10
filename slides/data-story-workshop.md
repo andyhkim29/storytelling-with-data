@@ -204,39 +204,83 @@ Half-baked ideas are encouraged. You can pitch multiple ideas and get help choos
 </div>
 
 <script>
-// YouTube embed player: click thumbnail → overlay iframe on top of Marp SVG
-document.addEventListener('click', function(e) {
-  var player = e.target.closest('.yt-player');
-  if (!player) return;
-  e.preventDefault();
-  e.stopPropagation();
-  var videoId = player.getAttribute('data-video');
-  if (!videoId) return;
-  // Get the bounding rect of the thumbnail relative to the viewport
-  var rect = player.getBoundingClientRect();
-  // Create an overlay div positioned absolutely over the thumbnail
-  var overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;z-index:99999;background:black;border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.4);';
-  overlay.style.left = rect.left + 'px';
-  overlay.style.top = rect.top + 'px';
-  overlay.style.width = rect.width + 'px';
-  overlay.style.height = rect.height + 'px';
-  // Create iframe
-  var iframe = document.createElement('iframe');
-  iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0';
-  iframe.style.cssText = 'width:100%;height:100%;border:none;border-radius:12px;';
-  iframe.allow = 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
-  iframe.allowFullscreen = true;
-  overlay.appendChild(iframe);
-  // Click overlay background to close
-  overlay.addEventListener('click', function(ev) {
-    if (ev.target === overlay) { overlay.remove(); }
+// YouTube player: creates a clickable overlay outside Marp's SVG sandbox.
+// On each slide change, checks if the current slide has a yt-player element
+// and creates a transparent click target over the entire slide area.
+(function() {
+  var activeOverlay = null;
+  var activeIframe = null;
+
+  function getVideoIdForCurrentSlide() {
+    // Marp uses hash #N for slide number. Find matching section.
+    var hash = location.hash.replace('#', '');
+    var slideNum = parseInt(hash) || 1;
+    var sections = document.querySelectorAll('section[id]');
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i].id == String(slideNum)) {
+        var player = sections[i].querySelector('.yt-player');
+        if (player) return player.getAttribute('data-video');
+      }
+    }
+    return null;
+  }
+
+  function removePlayer() {
+    if (activeOverlay) { activeOverlay.remove(); activeOverlay = null; }
+    if (activeIframe) { activeIframe.remove(); activeIframe = null; }
+  }
+
+  function showPlayer(videoId) {
+    removePlayer();
+    // Create a centered iframe overlay covering the slide
+    var iframe = document.createElement('iframe');
+    iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0';
+    iframe.allow = 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
+    iframe.allowFullscreen = true;
+    iframe.style.cssText = 'position:fixed;z-index:99999;border:none;border-radius:12px;' +
+      'top:50%;left:50%;transform:translate(-50%,-50%);width:80vw;height:45vw;max-width:960px;max-height:540px;' +
+      'box-shadow:0 8px 40px rgba(0,0,0,0.5);';
+    activeIframe = iframe;
+    // Backdrop
+    var backdrop = document.createElement('div');
+    backdrop.style.cssText = 'position:fixed;z-index:99998;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);cursor:pointer;';
+    backdrop.onclick = function() { removePlayer(); };
+    activeOverlay = backdrop;
+    document.body.appendChild(backdrop);
+    document.body.appendChild(iframe);
+  }
+
+  function setupClickZone() {
+    // Remove any existing click zone
+    var old = document.getElementById('yt-click-zone');
+    if (old) old.remove();
+    var videoId = getVideoIdForCurrentSlide();
+    if (!videoId) return;
+    // Create an invisible click zone over the slide
+    var zone = document.createElement('div');
+    zone.id = 'yt-click-zone';
+    zone.title = 'Click to play video';
+    zone.style.cssText = 'position:fixed;z-index:9999;top:0;left:0;width:100vw;height:100vh;cursor:pointer;';
+    zone.onclick = function() {
+      zone.remove();
+      showPlayer(videoId);
+    };
+    document.body.appendChild(zone);
+  }
+
+  // Escape to close
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') removePlayer();
   });
-  // Escape key to close
-  var escHandler = function(ev) {
-    if (ev.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); }
-  };
-  document.addEventListener('keydown', escHandler);
-  document.body.appendChild(overlay);
-}, true);
+
+  // Re-check on hash change (slide navigation)
+  window.addEventListener('hashchange', function() {
+    removePlayer();
+    setupClickZone();
+  });
+
+  // Initial setup after page loads
+  window.addEventListener('load', function() { setupClickZone(); });
+  setTimeout(setupClickZone, 1000);
+})();
 </script>
