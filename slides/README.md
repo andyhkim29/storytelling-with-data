@@ -96,9 +96,9 @@ Course schedule for Spring term 2026 (Mar 30 – Jun 3).
 
 ### Wednesday Apr 15 — Programming Basics
 - [slides](programming-basics.html)
-- [Companion notebook](programming_basics.ipynb)
+- [Companion notebook (open in Colab)](https://colab.research.google.com/github/ContextLab/storytelling-with-data/blob/master/slides/programming_basics.ipynb)
 - Hands-on practice with real programming problems
-- Git and GitHub: the daily workflow
+- Git and GitHub: forking, commits, pull requests
 
 ### Thursday Apr 16 (X-hour) — Introduction to Vibe Coding
 - [slides](vibe-coding.html)
