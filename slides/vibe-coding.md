@@ -60,7 +60,7 @@ Describing at a **very high level** what you want, and expecting the LLM to reso
 
 > "Build me a Spotify dashboard."
 
-The LLM guesses at your intent. You get generic, forgettable output. Worse: you don't notice the gap until you've spent an hour iterating on the wrong thing.
+The LLM guesses at your intent — you get generic, forgettable output. Worse: you don't notice the gap until you've spent an hour iterating on the wrong thing.
 
 </div>
 
@@ -68,7 +68,7 @@ The LLM guesses at your intent. You get generic, forgettable output. Worse: you 
 
 > "Build a single HTML page that loads my Spotify listening history. Show a stacked area chart of minutes listened per genre per month. When I hover, show the top 3 tracks from that genre that month. Color palette matches my favorite album cover. Works on mobile. No server — all processing in the browser."
 
-Now the LLM knows what "good" looks like. And you've clarified your own thinking in the process.
+Now the LLM knows what "good" looks like — and you've clarified your own thinking in the process.
 
 </div>
 
@@ -77,12 +77,16 @@ Now the LLM knows what "good" looks like. And you've clarified your own thinking
 
 # Free coding tools (for students)
 
+<div class="example-box" data-title="Check these out!">
+
 - **Dartmouth Claude** ([claude.dartmouth.edu](https://claude.dartmouth.edu)): powerful coding model, free for Dartmouth students, faculty, and staff
 - **Dartmouth GenAI** ([chat.dartmouth.edu](https://chat.dartmouth.edu)): free access to many models
 - **GitHub Copilot** (free for students): great at code completion, chat assistance
 - **Google Gemini** (free for students): long context, reasoning-heavy tasks
 - **Ollama** and **LM Studio**: run LLMs locally
 - **Hugging Face**: open models, useful for integrating into projects
+
+</div>
 
 <div class="note-box" data-title="Paid options if you want them">
 
@@ -95,10 +99,12 @@ Now the LLM knows what "good" looks like. And you've clarified your own thinking
 
 # Setting up your environment
 
-Two main paths:
+<div class="definition-box" data-title="Two main paths">
 
 1. **Integrated Development Environment (IDE):** full-featured, syntax highlighting, debugging, Git integration, extensions (VS Code, PyCharm, Cursor)
 2. **Terminal-based coding agent:** lightweight, fast, scriptable (Claude Code, Roo Code, Codex CLI)
+
+</div>
 
 <div class="note-box" data-title="Also worth trying">
 
@@ -119,6 +125,8 @@ Two main paths:
 
 # Setting up VS Code (details)
 
+<div class="example-box" data-title="Steps">
+
 - Download and install from [code.visualstudio.com](https://code.visualstudio.com)
 - Install essential extensions:
   - GitHub Copilot
@@ -126,6 +134,8 @@ Two main paths:
   - Python
   - Claude Code (or Roo Code)
 - Activate Copilot with your GitHub account (click the Accounts icon in bottom left)
+
+</div>
 
 ---
 
@@ -176,10 +186,14 @@ An open-source alternative that works inside VS Code. Roo Code:
 
 # Claude Code configuration
 
+<div class="note-box" data-title="Key things to know">
+
 - Use `/model` to switch between models (Claude Sonnet, Opus, Haiku)
 - Connect with your Anthropic account, or use GitHub Copilot models
 - Runs in your terminal inside your project directory
 - It can read files, write code, run commands, and browse the web
+
+</div>
 
 ---
 
@@ -216,9 +230,13 @@ Clone (download) your repo and `cd` into it.
 
 </div>
 
+<div class="example-box" data-title="Bootstrap Claude Code">
+
 - Launch Claude Code (run `claude` inside the project folder)
 - Run `/init` to tell Claude to explore your project folder
 - It maintains a `CLAUDE.md` file to help future sessions understand the project
+
+</div>
 
 ---
 <!-- _class: scale-80 -->
@@ -467,6 +485,8 @@ Claude will prompt you (often frequently) for permission to run code, execute co
 
 <div class="note-box" data-title="Up next...">
 
-- **Friday:** Assignment 3 brainstorm + release
+- **Monday:** watch and get feedback on data stories about something you built with vibe coding! (Assignment 3)
+- **Wednesday**: no class (I'll be out of town)
+- **Thursday and Friday**: dive into a dataset as a class, from a local community group
 
 </div>
