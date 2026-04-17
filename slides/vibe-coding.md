@@ -58,7 +58,7 @@ Describing at a **very high level** what you want, and expecting the LLM to reso
 
 <div class="warning-box" data-title="Under-specified">
 
-> "Build me a Spotify dashboard."
+`"Build me a Spotify dashboard."`
 
 The LLM guesses at your intent — you get generic, forgettable output. Worse: you don't notice the gap until you've spent an hour iterating on the wrong thing.
 
@@ -66,7 +66,7 @@ The LLM guesses at your intent — you get generic, forgettable output. Worse: y
 
 <div class="tip-box" data-title="Well-specified">
 
-> "Build a single HTML page that loads my Spotify listening history. Show a stacked area chart of minutes listened per genre per month. When I hover, show the top 3 tracks from that genre that month. Color palette matches my favorite album cover. Works on mobile. No server — all processing in the browser."
+`"Build a single HTML page that loads my Spotify listening history. Show a stacked area chart of minutes listened per genre per month. When I hover, show the top 3 tracks from that genre that month. Color palette matches my favorite album cover. Works on mobile. No server — all processing in the browser."`
 
 Now the LLM knows what "good" looks like — and you've clarified your own thinking in the process.
 
