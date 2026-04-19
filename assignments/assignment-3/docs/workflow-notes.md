@@ -29,3 +29,6 @@
 - Browser automation was not available in this environment, so live audio and
   click-flow verification should be completed by opening `index.html` directly
   in a desktop browser and following `specs/001-pomodoro-timer/quickstart.md`.
+- User browser check: the implemented Pomodoro site was opened locally and the
+  main timer, custom duration, task, sound, and persistence flows appeared to
+  work as expected.

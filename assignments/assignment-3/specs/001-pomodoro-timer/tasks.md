@@ -62,7 +62,7 @@
 - [X] T016 [US1] Implement one-minute ended-phase wait and automatic next-phase start in `assets/js/app.js`
 - [X] T017 [US1] Style timer display, phase states, alarm state, and controls in `assets/css/styles.css`
 - [X] T018 [US1] Document US1 verification steps and results in `docs/workflow-notes.md`
-- [ ] T019 [US1] Verify US1 manually by opening `index.html` locally and following quickstart timer scenarios
+- [X] T019 [US1] Verify US1 manually by opening `index.html` locally and following quickstart timer scenarios
 
 **Checkpoint**: User Story 1 is fully functional and testable independently.
 
@@ -82,7 +82,7 @@
 - [X] T023 [US2] Implement timer display formatting that hides the hour segment when hours are zero in `assets/js/app.js`
 - [X] T024 [US2] Style duration inputs, preset states, and validation messages in `assets/css/styles.css`
 - [X] T025 [US2] Document US2 verification steps and results in `docs/workflow-notes.md`
-- [ ] T026 [US2] Verify US2 manually by opening `index.html` locally and following quickstart custom duration scenarios
+- [X] T026 [US2] Verify US2 manually by opening `index.html` locally and following quickstart custom duration scenarios
 
 **Checkpoint**: User Stories 1 and 2 both work independently.
 
@@ -101,7 +101,7 @@
 - [X] T029 [US3] Implement satisfying completion sound and visible completion feedback in `assets/js/app.js`
 - [X] T030 [US3] Style active tasks, completed tasks, task controls, and completion feedback in `assets/css/styles.css`
 - [X] T031 [US3] Document US3 verification steps and results in `docs/workflow-notes.md`
-- [ ] T032 [US3] Verify US3 manually by opening `index.html` locally and following quickstart task scenarios
+- [X] T032 [US3] Verify US3 manually by opening `index.html` locally and following quickstart task scenarios
 
 **Checkpoint**: All user stories are independently functional.
 
@@ -111,7 +111,7 @@
 
 **Purpose**: Final validation, explainability, and assignment-readiness cleanup.
 
-- [ ] T033 Run full quickstart validation from `specs/001-pomodoro-timer/quickstart.md` and record results in `docs/workflow-notes.md`
+- [X] T033 Run full quickstart validation from `specs/001-pomodoro-timer/quickstart.md` and record results in `docs/workflow-notes.md`
 - [X] T034 Review `index.html`, `assets/css/styles.css`, and `assets/js/app.js` for explainability and remove unused code
 - [X] T035 Confirm the demo opens directly from local `index.html` without a server and document this in `docs/workflow-notes.md`
 - [X] T036 Confirm workflow evidence includes prompts, AI responses, debugging notes, and verification notes in `docs/workflow-notes.md`
