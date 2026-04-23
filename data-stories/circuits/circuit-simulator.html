@@ -1,0 +1,2520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Circuit Simulator</title>
+<style>
+/* === RESET & BASE === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #0d1117;
+  --bg-panel:     #161b22;
+  --bg-panel2:    #1c2128;
+  --border:       #30363d;
+  --wire:         #8b949e;
+  --wire-sel:     #58a6ff;
+  --accent:       #58a6ff;
+  --comp-stroke:  #e6edf3;
+  --comp-sel:     #58a6ff;
+  --volt-color:   #3fb950;
+  --curr-color:   #d29922;
+  --error-color:  #f85149;
+  --probe-color:  #bc8cff;
+  --grid-dot:     #21262d;
+  --text:         #e6edf3;
+  --text-muted:   #8b949e;
+  --text-dim:     #484f58;
+  --topbar-h:     42px;
+  --palette-w:    152px;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Courier New', Courier, monospace;
+}
+
+body {
+  display: grid;
+  grid-template-rows: var(--topbar-h) 1fr;
+  grid-template-columns: var(--palette-w) 1fr auto;
+  grid-template-areas:
+    "topbar topbar topbar"
+    "palette canvas help";
+}
+
+/* === TOP BAR === */
+#topbar {
+  grid-area: topbar;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 4px;
+  user-select: none;
+}
+
+#app-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-right: 8px;
+  text-transform: uppercase;
+}
+
+.tb-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  margin: 0 6px;
+}
+
+.tb-btn {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: color 0.1s, border-color 0.1s, background 0.1s;
+  white-space: nowrap;
+}
+.tb-btn:hover { color: var(--text); border-color: var(--border); background: var(--bg-panel2); }
+.tb-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.tb-btn.active { color: var(--accent); border-color: var(--accent); }
+
+#tool-indicator {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+}
+#tool-indicator span {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* === PALETTE === */
+#palette {
+  grid-area: palette;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 8px 6px;
+  gap: 2px;
+  overflow: hidden;
+  user-select: none;
+}
+
+#palette-title {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  padding: 4px 6px 8px;
+}
+
+.palette-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: 5px;
+  cursor: grab;
+  border: 1px solid transparent;
+  transition: background 0.1s, border-color 0.1s;
+}
+.palette-item:hover {
+  background: var(--bg-panel2);
+  border-color: var(--border);
+}
+.palette-item:active { cursor: grabbing; }
+
+.palette-item canvas {
+  width: 52px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.palette-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+/* === CANVAS AREA === */
+#canvas-wrap {
+  grid-area: canvas;
+  position: relative;
+  overflow: hidden;
+}
+
+#canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+#canvas.cur-default  { cursor: default; }
+#canvas.cur-grab     { cursor: grab; }
+#canvas.cur-grabbing { cursor: grabbing; }
+#canvas.cur-probe    { cursor: crosshair; }
+#canvas.cur-crosshair { cursor: crosshair; }
+
+/* === ERROR BANNER === */
+#error-banner {
+  display: none;
+  position: absolute;
+  top: 8px; left: 50%;
+  transform: translateX(-50%);
+  background: #2d1117;
+  border: 1px solid var(--error-color);
+  color: var(--error-color);
+  font-size: 11px;
+  padding: 6px 32px 6px 12px;
+  border-radius: 5px;
+  pointer-events: all;
+  z-index: 10;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+#error-banner.visible { display: block; }
+#error-dismiss {
+  position: absolute;
+  right: 8px; top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--error-color);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 2px;
+}
+
+/* === POPOVER === */
+#popover {
+  display: none;
+  position: absolute;
+  background: var(--bg-panel2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  z-index: 20;
+  min-width: 160px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+#popover.visible { display: block; }
+
+.pop-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.pop-row:last-child { margin-bottom: 0; }
+
+.pop-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  min-width: 28px;
+  letter-spacing: 0.04em;
+}
+
+.pop-input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  width: 80px;
+  outline: none;
+}
+.pop-input:focus { border-color: var(--accent); }
+.pop-input.invalid { border-color: var(--error-color); }
+
+.pop-unit {
+  font-size: 11px;
+  color: var(--text-dim);
+  min-width: 24px;
+}
+
+.pop-toggle {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+}
+.pop-toggle:hover { border-color: var(--accent); }
+
+/* === HELP PANEL === */
+#help-panel {
+  grid-area: help;
+  background: var(--bg-panel);
+  border-left: 1px solid var(--border);
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width 0.22s cubic-bezier(0.4,0,0.2,1);
+  user-select: none;
+}
+#help-panel.collapsed { width: 0; border-left-color: transparent; }
+
+#help-toggle {
+  position: absolute;
+  right: 0; top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-right: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 11px;
+  padding: 8px 5px;
+  cursor: pointer;
+  border-radius: 4px 0 0 4px;
+  writing-mode: vertical-rl;
+  letter-spacing: 0.08em;
+  transition: color 0.1s, background 0.1s;
+  line-height: 1;
+}
+#help-toggle:hover { color: var(--text); background: var(--bg-panel2); }
+
+#help-inner {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px 14px 20px;
+  width: 240px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+#help-inner::-webkit-scrollbar { width: 4px; }
+#help-inner::-webkit-scrollbar-track { background: transparent; }
+#help-inner::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.help-header-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.help-section { margin-bottom: 16px; }
+
+.help-section-title {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.help-step {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 7px;
+  align-items: flex-start;
+}
+.help-step-num {
+  flex-shrink: 0;
+  width: 18px; height: 18px;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.help-step-text {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.55;
+}
+.help-step-text strong { color: var(--text); font-weight: 700; }
+
+/* collapsible reference */
+.help-ref-toggle {
+  width: 100%;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 6px 10px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0;
+  letter-spacing: 0.04em;
+  transition: background 0.1s, color 0.1s;
+}
+.help-ref-toggle:hover { background: var(--bg-panel2); color: var(--text); }
+.help-ref-toggle .arrow { transition: transform 0.2s; }
+.help-ref-toggle.open .arrow { transform: rotate(180deg); }
+
+.help-ref-body {
+  display: none;
+  padding-top: 10px;
+}
+.help-ref-body.open { display: block; }
+
+.help-kb-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid #1c2128;
+}
+.help-kb-row:last-child { border-bottom: none; }
+
+.help-kb-key {
+  font-size: 11px;
+  color: var(--text);
+  background: var(--bg-panel2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 2px 6px;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.help-kb-desc {
+  font-size: 11px;
+  color: var(--text);
+  text-align: right;
+  flex: 1;
+  padding-left: 8px;
+}
+
+.help-tip {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-top: 6px;
+  padding: 7px 10px;
+  background: var(--bg-panel2);
+  border-radius: 4px;
+  border-left: 2px solid var(--accent);
+}
+
+.help-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 12px 0;
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <span id="app-title">⚡ Circuit</span>
+  <div class="tb-divider"></div>
+  <button class="tb-btn" id="btn-undo" title="Undo (Ctrl+Z)" disabled>↩ Undo</button>
+  <button class="tb-btn" id="btn-redo" title="Redo (Ctrl+Y)" disabled>↪ Redo</button>
+  <div class="tb-divider"></div>
+  <button class="tb-btn" id="btn-zoom-in"    title="Zoom In (Ctrl+=)">＋</button>
+  <button class="tb-btn" id="btn-zoom-out"   title="Zoom Out (Ctrl+-)">－</button>
+  <button class="tb-btn" id="btn-zoom-reset" title="Reset Zoom (Ctrl+0)">100%</button>
+  <div class="tb-divider"></div>
+  <button class="tb-btn" id="btn-probe" title="Probe Tool (P)">⊕ Probe</button>
+  <button class="tb-btn" id="btn-wire-tool" title="Wire Tool (W)">✎ Wire</button>
+  <div class="tb-divider"></div>
+  <button class="tb-btn" id="btn-run" title="Run Simulation (Enter)" style="color:#3fb950;border-color:#238636">▶ Run</button>
+  <span id="tool-indicator">Tool: <span id="tool-name">Select</span></span>
+  <div class="tb-divider"></div>
+  <button class="tb-btn" id="btn-help" title="Toggle Help Panel">? Help</button>
+</div>
+
+<!-- PALETTE -->
+<div id="palette">
+  <div id="palette-title">Components</div>
+  <div class="palette-item" data-type="battery">
+    <canvas width="52" height="28"></canvas>
+    <span class="palette-label">Battery</span>
+  </div>
+  <div class="palette-item" data-type="resistor">
+    <canvas width="52" height="28"></canvas>
+    <span class="palette-label">Resistor</span>
+  </div>
+  <div class="palette-item" data-type="capacitor">
+    <canvas width="52" height="28"></canvas>
+    <span class="palette-label">Capacitor</span>
+  </div>
+  <div class="palette-item" data-type="inductor">
+    <canvas width="52" height="28"></canvas>
+    <span class="palette-label">Inductor</span>
+  </div>
+  <div class="palette-item" data-type="switch">
+    <canvas width="52" height="28"></canvas>
+    <span class="palette-label">Switch</span>
+  </div>
+  <div class="palette-item" data-type="ground">
+    <canvas width="52" height="28"></canvas>
+    <span class="palette-label">Ground</span>
+  </div>
+</div>
+
+<!-- CANVAS -->
+<div id="canvas-wrap">
+  <canvas id="canvas"></canvas>
+  <div id="error-banner">
+    <span id="error-text"></span>
+    <button id="error-dismiss">✕</button>
+  </div>
+  <div id="popover"></div>
+</div>
+
+<!-- HELP PANEL -->
+<div id="help-panel">
+  <div id="help-inner">
+
+    <div class="help-header">
+      <span class="help-header-title">⚡ How to use</span>
+    </div>
+
+    <!-- QUICK START -->
+    <div class="help-section">
+      <div class="help-section-title">Quick Start</div>
+
+      <div class="help-step">
+        <div class="help-step-num">1</div>
+        <div class="help-step-text"><strong>Drag</strong> a component from the left panel onto the canvas.</div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">2</div>
+        <div class="help-step-text">Press <strong>W</strong> (or click <strong>✎ Wire</strong>) to enter wire mode. Click a terminal or wire endpoint to start, click another to finish. Press <strong>S</strong> to return to Select.</div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">3</div>
+        <div class="help-step-text"><strong>Add a Ground</strong> component and wire it in. Then press <strong>▶ Run</strong> (or <strong>Enter</strong>) to simulate — voltages appear in <span style="color:#3fb950">green</span>, currents in <span style="color:#d29922">amber</span>.</div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">4</div>
+        <div class="help-step-text"><strong>Double-click</strong> any component to edit its value.</div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">5</div>
+        <div class="help-step-text">Press <strong>P</strong> to enter Probe mode. Click two nodes to measure voltage between them.</div>
+      </div>
+
+      <div class="help-tip">Every circuit needs at least one <strong>Ground</strong> node and a closed DC path or the solver will warn you.</div>
+
+      <div class="help-tip" style="margin-top:6px">🖱 <strong>Pan:</strong> Space + drag, or middle-mouse drag. <strong>Zoom:</strong> scroll wheel.</div>
+    </div>
+
+    <div class="help-divider"></div>
+
+    <!-- FULL REFERENCE (collapsible) -->
+    <div class="help-section">
+      <button class="help-ref-toggle" id="ref-toggle">
+        Full Reference <span class="arrow">▾</span>
+      </button>
+      <div class="help-ref-body" id="ref-body">
+
+        <div class="help-section-title" style="margin-top:10px">Canvas Navigation</div>
+        <div class="help-kb-row"><span class="help-kb-key">Scroll</span><span class="help-kb-desc">Zoom to pointer</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Space + Drag</span><span class="help-kb-desc">Pan</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Middle Drag</span><span class="help-kb-desc">Pan</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Arrow keys</span><span class="help-kb-desc">Pan 1 grid unit</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Shift + ↑↓←→</span><span class="help-kb-desc">Pan 10 grid units</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Ctrl + =</span><span class="help-kb-desc">Zoom in</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Ctrl + −</span><span class="help-kb-desc">Zoom out</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Ctrl + 0</span><span class="help-kb-desc">Reset zoom</span></div>
+
+        <div class="help-section-title" style="margin-top:12px">Components</div>
+        <div class="help-kb-row"><span class="help-kb-key">Drag</span><span class="help-kb-desc">Place from palette</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">R</span><span class="help-kb-desc">Rotate 90° (while dragging or selected)</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Double-click</span><span class="help-kb-desc">Edit value / state</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Click</span><span class="help-kb-desc">Select</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Shift + Click</span><span class="help-kb-desc">Add to selection</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Drag (empty)</span><span class="help-kb-desc">Rubber-band select</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Del / Backspace</span><span class="help-kb-desc">Delete selected</span></div>
+
+        <div class="help-section-title" style="margin-top:12px">Tools</div>
+        <div class="help-kb-row"><span class="help-kb-key">S</span><span class="help-kb-desc">Select tool</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">W</span><span class="help-kb-desc">Wire tool</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">P</span><span class="help-kb-desc">Probe tool</span></div>
+
+        <div class="help-section-title" style="margin-top:12px">Wires</div>
+        <div class="help-kb-row"><span class="help-kb-key">Click</span><span class="help-kb-desc">Start / place waypoint / land wire</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">X</span><span class="help-kb-desc">Flip L-shape direction</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Esc</span><span class="help-kb-desc">Cancel wire</span></div>
+
+        <div class="help-section-title" style="margin-top:12px">Probe Tool</div>
+        <div class="help-kb-row"><span class="help-kb-key">P</span><span class="help-kb-desc">Toggle probe mode</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Click node × 2</span><span class="help-kb-desc">Measure V<sub>A</sub> − V<sub>B</sub></span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Click component</span><span class="help-kb-desc">Measure branch current</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">✕ on readout</span><span class="help-kb-desc">Close readout</span></div>
+
+        <div class="help-section-title" style="margin-top:12px">Simulation</div>
+        <div class="help-kb-row"><span class="help-kb-key">Enter</span><span class="help-kb-desc">Run simulation</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">▶ Run button</span><span class="help-kb-desc">Run simulation</span></div>
+
+        <div class="help-section-title" style="margin-top:12px">History</div>
+        <div class="help-kb-row"><span class="help-kb-key">Ctrl + Z</span><span class="help-kb-desc">Undo</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Ctrl + Y</span><span class="help-kb-desc">Redo</span></div>
+
+        <div class="help-section-title" style="margin-top:12px">DC Behaviour</div>
+        <div class="help-kb-row"><span class="help-kb-key">Capacitor</span><span class="help-kb-desc">Open circuit (no DC current)</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Inductor</span><span class="help-kb-desc">Short circuit (0 V drop)</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Switch open</span><span class="help-kb-desc">Open circuit</span></div>
+        <div class="help-kb-row"><span class="help-kb-key">Switch closed</span><span class="help-kb-desc">Short circuit</span></div>
+
+      </div><!-- /ref-body -->
+    </div><!-- /help-section -->
+
+  </div><!-- /help-inner -->
+</div><!-- /help-panel -->
+
+<script>
+'use strict';
+
+// === CONSTANTS ===
+const GRID          = 20;
+const SCALE_MIN     = 0.1;
+const SCALE_MAX     = 10.0;
+const TERMINAL_HIT  = 10;
+const PIVOT_EPSILON = 1e-12;
+const COMP_HALF     = 2;
+const GROUND_OFFSET = { x: 0, y: -1 };
+const GRID_HIDE_ZOOM = 0.4;
+const ZOOM_FACTOR   = 1.2;
+
+// Default params per type
+const DEFAULT_PARAMS = {
+  battery:   { E: 9 },
+  resistor:  { R: 1000 },
+  capacitor: { C: 0.0001 },
+  inductor:  { L: 0.01 },
+  switch:    { state: 'open' },
+  ground:    {}
+};
+
+// === STATE ===
+const APP = {
+  circuit:      null,
+  viewport:     { tx: 0, ty: 0, scale: 1.0 },
+  selection:    new Set(),
+  activeTool:   'select',
+  drag:         null,
+  wireInProgress: null,
+  hover:        null,
+  spaceDown:    false,
+  mouseScreen:  { x: 0, y: 0 },
+  probeReadouts: [],
+  probeAnchor:  null,
+  probeNextId:  1,
+  simResult:    null,
+  simError:     null,
+  simErrorIds:  [],
+  undoStack:    [],
+  redoStack:    [],
+  canvas:       null,
+  ctx:          null,
+  popover:      null,
+  errorBanner:  null,
+  errorText:    null,
+  popoverCompId: null,
+  panStart:     null,
+  dragStart:    null,
+  rubberBand:   null,
+  // store probe panel rects for hit testing
+  probeRects:   [],
+};
+
+function deepClone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+function emptyCircuit() {
+  return { components: {}, wires: {}, nextId: 1 };
+}
+
+// === GEOMETRY ===
+function worldToScreen(wx, wy, vp) {
+  return {
+    sx: wx * vp.scale + vp.tx,
+    sy: wy * vp.scale + vp.ty
+  };
+}
+
+function screenToWorld(sx, sy, vp) {
+  return {
+    wx: (sx - vp.tx) / vp.scale,
+    wy: (sy - vp.ty) / vp.scale
+  };
+}
+
+function snapToGrid(wx, wy) {
+  return {
+    x: Math.round(wx / GRID),
+    y: Math.round(wy / GRID)
+  };
+}
+
+function gridToWorld(gx, gy) {
+  return { wx: gx * GRID, wy: gy * GRID };
+}
+
+function screenToGrid(sx, sy, vp) {
+  const w = screenToWorld(sx, sy, vp);
+  return snapToGrid(w.wx, w.wy);
+}
+
+function gridToScreen(gx, gy, vp) {
+  const { wx, wy } = gridToWorld(gx, gy);
+  return worldToScreen(wx, wy, vp);
+}
+
+function rotateOffset(dx, dy, rotation) {
+  switch (rotation) {
+    case 0:   return { dx:  dx, dy:  dy };
+    case 90:  return { dx: -dy, dy:  dx };
+    case 180: return { dx: -dx, dy: -dy };
+    case 270: return { dx:  dy, dy: -dx };
+    default:  return { dx:  dx, dy:  dy };
+  }
+}
+
+function terminalPositions(comp) {
+  if (comp.type === 'ground') {
+    const a = rotateOffset(GROUND_OFFSET.x, GROUND_OFFSET.y, comp.rotation);
+    return {
+      A: { x: comp.x + a.dx, y: comp.y + a.dy },
+      B: null
+    };
+  }
+  const ra = rotateOffset(-COMP_HALF, 0, comp.rotation);
+  const rb = rotateOffset( COMP_HALF, 0, comp.rotation);
+  return {
+    A: { x: comp.x + ra.dx, y: comp.y + ra.dy },
+    B: { x: comp.x + rb.dx, y: comp.y + rb.dy }
+  };
+}
+
+// Returns the natural exit axis of a terminal: 'h' for left/right exits, 'v' for up/down.
+// A terminal at offset (-2,0) or (+2,0) exits horizontally; at (0,-1) exits vertically.
+function terminalExitAxis(comp, terminal) {
+  const raw = (comp.type === 'ground')
+    ? { dx: GROUND_OFFSET.x, dy: GROUND_OFFSET.y }
+    : (terminal === 'A'
+        ? { dx: -COMP_HALF, dy: 0 }
+        : { dx:  COMP_HALF, dy: 0 });
+  const rot = rotateOffset(raw.dx, raw.dy, comp.rotation);
+  // If the terminal offset is primarily horizontal after rotation, exit is horizontal
+  return Math.abs(rot.dx) >= Math.abs(rot.dy) ? 'h' : 'v';
+}
+
+function segmentHitTest(px, py, ax, ay, bx, by, threshold) {
+  const dx = bx - ax, dy = by - ay;
+  const lenSq = dx*dx + dy*dy;
+  if (lenSq === 0) {
+    const ex = px-ax, ey = py-ay;
+    return Math.sqrt(ex*ex+ey*ey) <= threshold;
+  }
+  let t = ((px-ax)*dx + (py-ay)*dy) / lenSq;
+  t = Math.max(0, Math.min(1, t));
+  const cx = ax + t*dx, cy = ay + t*dy;
+  const ex = px-cx, ey = py-cy;
+  return Math.sqrt(ex*ex+ey*ey) <= threshold;
+}
+
+function nearestTerminal(sx, sy, circuit, vp) {
+  let best = null, bestDist = Infinity;
+  for (const id in circuit.components) {
+    const comp = circuit.components[id];
+    const tp = terminalPositions(comp);
+    for (const t of ['A','B']) {
+      if (!tp[t]) continue;
+      const sc = gridToScreen(tp[t].x, tp[t].y, vp);
+      const dx = sc.sx - sx, dy = sc.sy - sy;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if (d < bestDist && d <= TERMINAL_HIT) {
+        bestDist = d;
+        best = { componentId: parseInt(id), terminal: t, gx: tp[t].x, gy: tp[t].y };
+      }
+    }
+  }
+  return best;
+}
+
+// Returns the endpoint of a single straight (H or V) segment from `from` toward `to`.
+// The axis is chosen by whichever displacement is larger (auto), unless flipL
+// overrides it. The returned point is snapped to the chosen axis.
+function straightSegmentEnd(from, to, flipL) {
+  const dx = Math.abs(to.x - from.x);
+  const dy = Math.abs(to.y - from.y);
+  // auto: lock to H if |dx|>=|dy|, else V; flipL swaps the choice
+  const hFirst = (dx >= dy) !== flipL;
+  if (hFirst) {
+    return { x: to.x, y: from.y };   // horizontal segment
+  } else {
+    return { x: from.x, y: to.y };   // vertical segment
+  }
+}
+
+function rerouteWireEnd(wire, oldPt, newPt) {
+  const pts = wire.points.map(p => ({...p}));
+  const firstMatch = pts[0].x === oldPt.x && pts[0].y === oldPt.y;
+  const lastMatch  = pts[pts.length-1].x === oldPt.x && pts[pts.length-1].y === oldPt.y;
+  if (!firstMatch && !lastMatch) return wire;
+
+  if (firstMatch) {
+    const anchor = pts.length > 2 ? pts[1] : pts[pts.length-1];
+    const mid = straightSegmentEnd(newPt, anchor, false);
+    const idx = pts.findIndex(p => p.x===anchor.x && p.y===anchor.y);
+    const newPts = [newPt, mid, ...pts.slice(idx)];
+    return { ...wire, points: dedupePoints(newPts) };
+  } else {
+    const anchor = pts.length > 2 ? pts[pts.length-2] : pts[0];
+    const mid = straightSegmentEnd(anchor, newPt, false);
+    const idx = pts.findIndex(p => p.x===anchor.x && p.y===anchor.y);
+    const newPts = [...pts.slice(0, idx+1), mid, newPt];
+    return { ...wire, points: dedupePoints(newPts) };
+  }
+}
+
+function dedupePoints(pts) {
+  const out = [pts[0]];
+  for (let i = 1; i < pts.length; i++) {
+    const p = pts[i], q = out[out.length-1];
+    if (p.x !== q.x || p.y !== q.y) out.push(p);
+  }
+  return out;
+}
+
+function splitWireAtPoint(wire, gx, gy) {
+  // find closest segment to gx,gy
+  let bestSeg = 0, bestT = 0, bestDist = Infinity;
+  const pts = wire.points;
+  for (let i = 0; i < pts.length-1; i++) {
+    const ax=pts[i].x, ay=pts[i].y, bx=pts[i+1].x, by=pts[i+1].y;
+    const dx=bx-ax, dy=by-ay, lenSq=dx*dx+dy*dy;
+    let t = lenSq===0 ? 0 : ((gx-ax)*dx+(gy-ay)*dy)/lenSq;
+    t = Math.max(0,Math.min(1,t));
+    const cx=ax+t*dx, cy=ay+t*dy;
+    const d=Math.sqrt((gx-cx)*(gx-cx)+(gy-cy)*(gy-cy));
+    if (d < bestDist) { bestDist=d; bestSeg=i; bestT=t; }
+  }
+  const a=pts[bestSeg], b=pts[bestSeg+1];
+  // snap split point to grid on the segment
+  let sp;
+  if (a.x===b.x) sp={x:a.x, y:gy};
+  else if (a.y===b.y) sp={x:gx, y:a.y};
+  else sp={x:gx, y:gy};
+
+  const ptsA = [...pts.slice(0, bestSeg+1), sp];
+  const ptsB = [sp, ...pts.slice(bestSeg+1)];
+  return [
+    { ...wire, points: dedupePoints(ptsA) },
+    { ...wire, points: dedupePoints(ptsB) }
+  ];
+}
+
+function midpointOfLongestSegment(wire) {
+  const pts = wire.points;
+  let bestLen = -1, bestMid = pts[0];
+  for (let i = 0; i < pts.length-1; i++) {
+    const dx=pts[i+1].x-pts[i].x, dy=pts[i+1].y-pts[i].y;
+    const len=Math.sqrt(dx*dx+dy*dy);
+    if (len > bestLen) {
+      bestLen = len;
+      bestMid = { x: (pts[i].x+pts[i+1].x)/2, y: (pts[i].y+pts[i+1].y)/2 };
+    }
+  }
+  return bestMid;
+}
+
+// === CIRCUIT GRAPH ===
+function addComponent(circuit, type, gx, gy, rotation, params) {
+  const c = deepClone(circuit);
+  const id = c.nextId++;
+  c.components[id] = { id, type, x:gx, y:gy, rotation: rotation||0, params: params||deepClone(DEFAULT_PARAMS[type]) };
+  return c;
+}
+
+function deleteComponents(circuit, ids) {
+  const c = deepClone(circuit);
+  const idSet = new Set(ids.map(Number));
+  // collect terminals of deleted components
+  const deadCoords = new Set();
+  for (const id of idSet) {
+    const comp = c.components[id];
+    if (!comp) continue;
+    const tp = terminalPositions(comp);
+    if (tp.A) deadCoords.add(`${tp.A.x},${tp.A.y}`);
+    if (tp.B) deadCoords.add(`${tp.B.x},${tp.B.y}`);
+    delete c.components[id];
+  }
+  // delete wires whose endpoints touch deleted terminals
+  for (const wid in c.wires) {
+    const w = c.wires[wid];
+    const first = w.points[0], last = w.points[w.points.length-1];
+    if (deadCoords.has(`${first.x},${first.y}`) || deadCoords.has(`${last.x},${last.y}`)) {
+      delete c.wires[wid];
+    }
+  }
+  return c;
+}
+
+function moveComponent(circuit, id, gx, gy) {
+  const c = deepClone(circuit);
+  const comp = c.components[id];
+  if (!comp) return c;
+  const oldTP = terminalPositions(comp);
+  comp.x = gx; comp.y = gy;
+  const newTP = terminalPositions(comp);
+
+  for (const wid in c.wires) {
+    let w = c.wires[wid];
+    const first = w.points[0], last = w.points[w.points.length-1];
+    for (const [oldT, newT] of [
+      [oldTP.A, newTP.A],
+      [oldTP.B, newTP.B]
+    ]) {
+      if (!oldT || !newT) continue;
+      if (first.x===oldT.x && first.y===oldT.y) {
+        w = rerouteWireEnd(w, first, newT);
+      } else if (last.x===oldT.x && last.y===oldT.y) {
+        w = rerouteWireEnd(w, last, newT);
+      }
+    }
+    c.wires[wid] = w;
+  }
+  return c;
+}
+
+function setParam(circuit, id, key, value) {
+  const c = deepClone(circuit);
+  if (c.components[id]) c.components[id].params[key] = value;
+  return c;
+}
+
+function addWire(circuit, points) {
+  const c = deepClone(circuit);
+  const id = c.nextId++;
+  c.wires[id] = { id, points: points.map(p=>({...p})) };
+  return c;
+}
+
+function deleteWires(circuit, ids) {
+  const c = deepClone(circuit);
+  for (const id of ids) delete c.wires[id];
+  return c;
+}
+
+function splitWire(circuit, wireId, gx, gy) {
+  const c = deepClone(circuit);
+  const wire = c.wires[wireId];
+  if (!wire) return c;
+  const [wA, wB] = splitWireAtPoint(wire, gx, gy);
+  delete c.wires[wireId];
+  const idA = c.nextId++; wA.id = idA; c.wires[idA] = wA;
+  const idB = c.nextId++; wB.id = idB; c.wires[idB] = wB;
+  return c;
+}
+
+// === UNION-FIND / NODE RESOLUTION ===
+function makeUF(keys) {
+  const parent = {}, rank = {};
+  for (const k of keys) { parent[k]=k; rank[k]=0; }
+  return { parent, rank };
+}
+
+function ufFind(uf, k) {
+  if (uf.parent[k] !== k) uf.parent[k] = ufFind(uf, uf.parent[k]);
+  return uf.parent[k];
+}
+
+function ufUnion(uf, a, b) {
+  if (!(a in uf.parent)) { uf.parent[a]=a; uf.rank[a]=0; }
+  if (!(b in uf.parent)) { uf.parent[b]=b; uf.rank[b]=0; }
+  const ra=ufFind(uf,a), rb=ufFind(uf,b);
+  if (ra===rb) return;
+  if (uf.rank[ra]<uf.rank[rb]) uf.parent[ra]=rb;
+  else if (uf.rank[ra]>uf.rank[rb]) uf.parent[rb]=ra;
+  else { uf.parent[rb]=ra; uf.rank[ra]++; }
+}
+
+function buildNodeMap(circuit, excludeCapacitors) {
+  const uf = makeUF([]);
+
+  // gather all coords
+  for (const id in circuit.components) {
+    const comp = circuit.components[id];
+    if (excludeCapacitors && comp.type==='capacitor') continue;
+    const tp = terminalPositions(comp);
+    if (tp.A) ufUnion(uf, `${tp.A.x},${tp.A.y}`, `${tp.A.x},${tp.A.y}`);
+    if (tp.B) ufUnion(uf, `${tp.B.x},${tp.B.y}`, `${tp.B.x},${tp.B.y}`);
+  }
+  for (const wid in circuit.wires) {
+    const pts = circuit.wires[wid].points;
+    for (const p of pts) ufUnion(uf, `${p.x},${p.y}`, `${p.x},${p.y}`);
+    for (let i=0;i<pts.length-1;i++) ufUnion(uf, `${pts[i].x},${pts[i].y}`, `${pts[i+1].x},${pts[i+1].y}`);
+  }
+
+  // compute canonical keys (lex smallest in each set)
+  const setMembers = {};
+  for (const k in uf.parent) {
+    const root = ufFind(uf,k);
+    if (!setMembers[root]) setMembers[root]=[];
+    setMembers[root].push(k);
+  }
+
+  const canonical = {}; // root → canonical key
+  for (const root in setMembers) {
+    const members = setMembers[root];
+    // lex sort: compare as "x,y" by numeric parts
+    members.sort((a,b) => {
+      const [ax,ay]=a.split(',').map(Number);
+      const [bx,by]=b.split(',').map(Number);
+      if (ax!==bx) return ax-bx;
+      return ay-by;
+    });
+    canonical[root] = members[0];
+  }
+
+  const coordToNode = {};
+  for (const k in uf.parent) {
+    const root = ufFind(uf,k);
+    coordToNode[k] = canonical[root];
+  }
+
+  const nodes = {};
+  for (const k in coordToNode) {
+    const ck = coordToNode[k];
+    if (!nodes[ck]) nodes[ck]=[];
+    nodes[ck].push(k);
+  }
+
+  // termToNode
+  const termToNode = {};
+  for (const id in circuit.components) {
+    const comp = circuit.components[id];
+    if (excludeCapacitors && comp.type==='capacitor') continue;
+    const tp = terminalPositions(comp);
+    if (tp.A) {
+      const key = `${tp.A.x},${tp.A.y}`;
+      termToNode[`${id}_A`] = coordToNode[key] || key;
+    }
+    if (tp.B) {
+      const key = `${tp.B.x},${tp.B.y}`;
+      termToNode[`${id}_B`] = coordToNode[key] || key;
+    }
+  }
+
+  // find ground key
+  let groundKey = null;
+  for (const id in circuit.components) {
+    if (circuit.components[id].type === 'ground') {
+      groundKey = termToNode[`${id}_A`] || null;
+      break;
+    }
+  }
+
+  return { nodes, coordToNode, termToNode, groundKey };
+}
+
+function findFloatingNodes(circuit, fullNodeMap) {
+  // build DC-only node map (no caps)
+  const dcMap = buildNodeMap(circuit, true);
+  if (!dcMap.groundKey) return [];
+
+  // BFS from ground in DC map
+  const dcAdj = {};
+  for (const id in circuit.components) {
+    const comp = circuit.components[id];
+    if (comp.type==='capacitor') continue;
+    const na = dcMap.termToNode[`${id}_A`];
+    const nb = dcMap.termToNode[`${id}_B`];
+    if (!na || !nb) continue;
+    if (!dcAdj[na]) dcAdj[na]=new Set();
+    if (!dcAdj[nb]) dcAdj[nb]=new Set();
+    dcAdj[na].add(nb);
+    dcAdj[nb].add(na);
+  }
+
+  const visited = new Set([dcMap.groundKey]);
+  const queue = [dcMap.groundKey];
+  while (queue.length) {
+    const n = queue.shift();
+    for (const nb of (dcAdj[n]||[])) {
+      if (!visited.has(nb)) { visited.add(nb); queue.push(nb); }
+    }
+  }
+
+  // any node in the FULL map not visited in DC map is floating
+  const floating = [];
+  for (const nodeKey in fullNodeMap.nodes) {
+    if (nodeKey === fullNodeMap.groundKey) continue;
+    // map this node to its DC equivalent
+    const sampleCoord = fullNodeMap.nodes[nodeKey][0];
+    const dcNodeKey = dcMap.coordToNode[sampleCoord];
+    if (!dcNodeKey || !visited.has(dcNodeKey)) {
+      const [x,y] = nodeKey.split(',').map(Number);
+      floating.push({ key: nodeKey, x, y });
+    }
+  }
+  return floating;
+}
+
+// === MNA SOLVER ===
+function makeMatrix(rows, cols) {
+  return Array.from({length:rows}, ()=>new Array(cols).fill(0));
+}
+
+function gaussianElim(A) {
+  const n = A.length;
+  for (let col=0; col<n; col++) {
+    // partial pivot
+    let maxRow=col, maxVal=Math.abs(A[col][col]);
+    for (let row=col+1; row<n; row++) {
+      if (Math.abs(A[row][col])>maxVal) { maxVal=Math.abs(A[row][col]); maxRow=row; }
+    }
+    if (maxVal < PIVOT_EPSILON) return null;
+    // swap
+    [A[col], A[maxRow]] = [A[maxRow], A[col]];
+    // normalize pivot row
+    const pivot = A[col][col];
+    for (let j=col; j<=n; j++) A[col][j] /= pivot;
+    // eliminate
+    for (let row=0; row<n; row++) {
+      if (row===col) continue;
+      const factor = A[row][col];
+      for (let j=col; j<=n; j++) A[row][j] -= factor*A[col][j];
+    }
+  }
+  return A.map(row=>row[n]);
+}
+
+function solve(circuit, nodeMap) {
+  // enumerate non-ground nodes
+  const nodeKeys = Object.keys(nodeMap.nodes).filter(k=>k!==nodeMap.groundKey);
+  const N = nodeKeys.length;
+  const nodeIdx = {};
+  nodeKeys.forEach((k,i)=>nodeIdx[k]=i);
+
+  function nIdx(termKey) {
+    const nk = nodeMap.termToNode[termKey];
+    if (!nk || nk===nodeMap.groundKey) return -1;
+    return nodeIdx[nk] !== undefined ? nodeIdx[nk] : -1;
+  }
+
+  // enumerate voltage sources: batteries, closed switches, inductors
+  const vsources = [];
+  for (const id in circuit.components) {
+    const comp = circuit.components[id];
+    if (comp.type==='battery') vsources.push({id:parseInt(id), E: comp.params.E||0});
+    else if (comp.type==='switch' && comp.params.state==='closed') vsources.push({id:parseInt(id), E:0});
+    else if (comp.type==='inductor') vsources.push({id:parseInt(id), E:0});
+  }
+  const M = vsources.length;
+
+  if (N===0) return { ok:true, nodeVoltages: new Map(), branchCurrents: new Map() };
+
+  // build augmented matrix (N+M) x (N+M+1)
+  const size = N+M;
+  const A = makeMatrix(size, size+1);
+
+  // stamp resistors
+  for (const id in circuit.components) {
+    const comp = circuit.components[id];
+    if (comp.type!=='resistor') continue;
+    const R = comp.params.R || 1000;
+    const p = nIdx(`${id}_A`), q = nIdx(`${id}_B`);
+    const G = 1/R;
+    if (p>=0) A[p][p]+=G;
+    if (q>=0) A[q][q]+=G;
+    if (p>=0&&q>=0) { A[p][q]-=G; A[q][p]-=G; }
+  }
+
+  // stamp voltage sources
+  vsources.forEach((vs, k) => {
+    const p = nIdx(`${vs.id}_A`), q = nIdx(`${vs.id}_B`);
+    if (p>=0) { A[p][N+k]+=1; A[N+k][p]+=1; }
+    if (q>=0) { A[q][N+k]-=1; A[N+k][q]-=1; }
+    A[N+k][size] = vs.E;
+  });
+
+  const sol = gaussianElim(A);
+  if (!sol) return { ok:false, message:'Circuit has a loop or conflict that cannot be solved (singular matrix).', highlightIds:[] };
+
+  // extract results
+  const nodeVoltages = new Map();
+  nodeVoltages.set(nodeMap.groundKey, 0);
+  nodeKeys.forEach((k,i)=>nodeVoltages.set(k, sol[i]));
+
+  const branchCurrents = new Map();
+  // voltage source currents
+  vsources.forEach((vs,k)=>branchCurrents.set(vs.id, sol[N+k]));
+
+  // resistor currents
+  for (const id in circuit.components) {
+    const comp = circuit.components[id];
+    if (comp.type!=='resistor') continue;
+    const na = nodeMap.termToNode[`${id}_A`];
+    const nb = nodeMap.termToNode[`${id}_B`];
+    const va = nodeVoltages.get(na)||0;
+    const vb = nodeVoltages.get(nb)||0;
+    branchCurrents.set(parseInt(id), (va-vb)/(comp.params.R||1000));
+  }
+  // capacitor = 0 current, open switch = 0
+  for (const id in circuit.components) {
+    const comp = circuit.components[id];
+    if (comp.type==='capacitor' || (comp.type==='switch'&&comp.params.state==='open')) {
+      branchCurrents.set(parseInt(id), 0);
+    }
+  }
+
+  return { ok:true, nodeVoltages, branchCurrents };
+}
+
+// === SIMULATION ===
+// Given a node's canonical key, return all component IDs and wire IDs whose
+// terminals or waypoints belong to that node.
+function resolveNodeToIds(circuit, nodeMap, nodeKey) {
+  const ids = [];
+  const coords = new Set(nodeMap.nodes[nodeKey] || []);
+
+  for (const id in circuit.components) {
+    const comp = circuit.components[id];
+    const tp = terminalPositions(comp);
+    const aKey = tp.A ? `${tp.A.x},${tp.A.y}` : null;
+    const bKey = tp.B ? `${tp.B.x},${tp.B.y}` : null;
+    if ((aKey && coords.has(aKey)) || (bKey && coords.has(bKey))) {
+      ids.push(comp.id);
+    }
+  }
+
+  for (const wid in circuit.wires) {
+    const w = circuit.wires[wid];
+    const touches = w.points.some(p => coords.has(`${p.x},${p.y}`));
+    if (touches) ids.push(parseInt(wid));
+  }
+
+  return ids;
+}
+
+function runSimulation() {
+  const circuit = APP.circuit;
+  if (Object.keys(circuit.components).length===0 && Object.keys(circuit.wires).length===0) {
+    APP.simResult=null; APP.simError=null; APP.simErrorIds=[];
+    updateProbeReadouts(); render(); return;
+  }
+
+  const nodeMap = buildNodeMap(circuit, false);
+
+  if (!nodeMap.groundKey) {
+    setSimError('No ground node. Add a ground component.', []); return;
+  }
+  const floaters = findFloatingNodes(circuit, nodeMap);
+  if (floaters.length>0) {
+    const f=floaters[0];
+    // resolve the floating node key into the component and wire IDs that belong to it
+    const floatIds = resolveNodeToIds(circuit, nodeMap, f.key);
+    setSimError(`Floating node detected — highlighted in red. All nodes must connect to ground.`, floatIds); return;
+  }
+
+  const result = solve(circuit, nodeMap);
+  if (!result.ok) {
+    setSimError(result.message, result.highlightIds||[]); return;
+  }
+
+  APP.simResult = result;
+  APP.simError = null;
+  APP.simErrorIds = [];
+  updateProbeReadouts();
+  render();
+}
+
+function setSimError(msg, ids) {
+  APP.simError=msg; APP.simErrorIds=ids; APP.simResult=null;
+  updateProbeReadouts(); render();
+}
+
+// === SI FORMATTER ===
+const SI_PREFIXES = [
+  [1e-12,'p'],[1e-9,'n'],[1e-6,'µ'],[1e-3,'m'],
+  [1,''],
+  [1e3,'k'],[1e6,'M'],[1e9,'G']
+];
+
+function formatSI(value, unit) {
+  if (value===null||value===undefined||isNaN(value)) return '— '+unit;
+  if (value===0) return '0 '+unit;
+  const abs=Math.abs(value);
+  let chosen=SI_PREFIXES[4];
+  for (let i=SI_PREFIXES.length-1;i>=0;i--) {
+    if (abs>=SI_PREFIXES[i][0]) { chosen=SI_PREFIXES[i]; break; }
+  }
+  const mantissa=value/chosen[0];
+  return mantissa.toPrecision(3)+' '+chosen[1]+unit;
+}
+
+// === COMPONENT SYMBOLS ===
+// All draw in local space: origin at (0,0), 1 unit = GRID px
+// ctx already scaled
+
+function drawBattery(ctx, params) {
+  const G=GRID;
+  ctx.beginPath();
+  ctx.moveTo(-2*G,0); ctx.lineTo(-0.15*G,0);
+  ctx.moveTo(0.15*G,0); ctx.lineTo(2*G,0);
+  // long line (+)
+  ctx.moveTo(-0.15*G,-0.55*G); ctx.lineTo(-0.15*G,0.55*G);
+  // short line (-)
+  ctx.moveTo(0.15*G,-0.32*G); ctx.lineTo(0.15*G,0.32*G);
+  ctx.stroke();
+  // labels
+  ctx.font = `${0.5*G}px Courier New`;
+  ctx.fillStyle = ctx.strokeStyle;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('+', -0.6*G, -0.55*G);
+  ctx.fillText('−', 0.65*G, -0.5*G);
+}
+
+function drawResistor(ctx) {
+  const G=GRID;
+  const peaks=6, w=2*G, h=0.45*G;
+  ctx.beginPath();
+  ctx.moveTo(-2*G,0); ctx.lineTo(-G,0);
+  // zigzag
+  for(let i=0;i<peaks;i++){
+    const x=-G+i*(2*G/peaks)+(G/peaks);
+    const y=(i%2===0)?-h:h;
+    ctx.lineTo(x,y);
+  }
+  ctx.lineTo(G,0); ctx.lineTo(2*G,0);
+  ctx.stroke();
+}
+
+function drawCapacitor(ctx) {
+  const G=GRID;
+  ctx.beginPath();
+  ctx.moveTo(-2*G,0); ctx.lineTo(-0.2*G,0);
+  ctx.moveTo(0.2*G,0); ctx.lineTo(2*G,0);
+  ctx.moveTo(-0.2*G,-0.6*G); ctx.lineTo(-0.2*G,0.6*G);
+  ctx.moveTo(0.2*G,-0.6*G);  ctx.lineTo(0.2*G,0.6*G);
+  ctx.stroke();
+}
+
+function drawInductor(ctx) {
+  const G=GRID;
+  const cx=[-1.0*G,-0.333*G,0.333*G,1.0*G];
+  ctx.beginPath();
+  ctx.moveTo(-2*G,0); ctx.lineTo(-1.5*G,0);
+  for(let i=0;i<3;i++){
+    const x=cx[i];
+    ctx.arc(x+0.333*G,0,0.333*G,Math.PI,0,false);
+  }
+  ctx.lineTo(2*G,0);
+  ctx.stroke();
+}
+
+function drawSwitch(ctx, isOpen) {
+  const G=GRID;
+  ctx.beginPath();
+  ctx.moveTo(-2*G,0); ctx.lineTo(-0.5*G,0);
+  if(isOpen){
+    ctx.moveTo(-0.5*G,0); ctx.lineTo(0.5*G,-0.65*G);
+    ctx.moveTo(0.5*G,0); ctx.lineTo(2*G,0);
+    // dot at pivot
+    ctx.arc(-0.5*G,0,0.12*G,0,Math.PI*2);
+  } else {
+    ctx.lineTo(0.5*G,0); ctx.lineTo(2*G,0);
+    ctx.arc(-0.5*G,0,0.12*G,0,Math.PI*2);
+  }
+  ctx.stroke();
+}
+
+function drawGround(ctx) {
+  const G=GRID;
+  ctx.beginPath();
+  ctx.moveTo(0,-G); ctx.lineTo(0,0);
+  ctx.moveTo(-0.5*G,0);  ctx.lineTo(0.5*G,0);
+  ctx.moveTo(-0.3*G,0.4*G); ctx.lineTo(0.3*G,0.4*G);
+  ctx.moveTo(-0.1*G,0.8*G); ctx.lineTo(0.1*G,0.8*G);
+  ctx.stroke();
+}
+
+// === RENDERER ===
+function applyViewport(ctx, vp) {
+  ctx.setTransform(vp.scale,0,0,vp.scale,vp.tx,vp.ty);
+}
+
+// nodemap cached for rendering labels
+let _lastNodeMap = null;
+
+function render() {
+  const canvas=APP.canvas, ctx=APP.ctx, vp=APP.viewport;
+  if(!canvas||!ctx) return;
+
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.fillStyle='#0d1117';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // grid
+  if (vp.scale >= GRID_HIDE_ZOOM) {
+    applyViewport(ctx,vp);
+    const topLeft=screenToWorld(0,0,vp), botRight=screenToWorld(canvas.width,canvas.height,vp);
+    const x0=Math.floor(topLeft.wx/GRID)-1, x1=Math.ceil(botRight.wx/GRID)+1;
+    const y0=Math.floor(topLeft.wy/GRID)-1, y1=Math.ceil(botRight.wy/GRID)+1;
+    ctx.fillStyle='#21262d';
+    const dotSize=Math.max(1,1.5/vp.scale);
+    for(let x=x0;x<=x1;x++){
+      for(let y=y0;y<=y1;y++){
+        ctx.fillRect(x*GRID-dotSize/2,y*GRID-dotSize/2,dotSize,dotSize);
+      }
+    }
+  }
+
+  const circuit=APP.circuit;
+  _lastNodeMap = buildNodeMap(circuit,false);
+
+  // wires
+  applyViewport(ctx,vp);
+  for(const wid in circuit.wires){
+    const w=circuit.wires[wid];
+    const sel=APP.selection.has(parseInt(wid));
+    const err=APP.simErrorIds.includes(parseInt(wid));
+    ctx.strokeStyle = err?'#f85149': sel?'#58a6ff':'#8b949e';
+    ctx.lineWidth=(sel?2.5:1.5)/vp.scale;
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    const pts=w.points;
+    const s0=gridToWorld(pts[0].x,pts[0].y);
+    ctx.moveTo(s0.wx,s0.wy);
+    for(let i=1;i<pts.length;i++){
+      const si=gridToWorld(pts[i].x,pts[i].y);
+      ctx.lineTo(si.wx,si.wy);
+    }
+    ctx.stroke();
+  }
+
+  // wire in progress
+  if(APP.wireInProgress){
+    applyViewport(ctx,vp);
+    const wip=APP.wireInProgress;
+    const pts=wip.points;
+    const last=pts[pts.length-1];
+    const mouseGrid=screenToGrid(APP.mouseScreen.x,APP.mouseScreen.y,vp);
+    // show all committed segments plus the live straight-segment preview
+    const previewEnd = straightSegmentEnd(last, mouseGrid, wip.flipL);
+
+    ctx.strokeStyle='#58a6ff';
+    ctx.lineWidth=1.5/vp.scale;
+    ctx.setLineDash([4/vp.scale,4/vp.scale]);
+    ctx.beginPath();
+    const sw=gridToWorld(pts[0].x,pts[0].y);
+    ctx.moveTo(sw.wx,sw.wy);
+    for(let i=1;i<pts.length;i++){
+      const si=gridToWorld(pts[i].x,pts[i].y);
+      ctx.lineTo(si.wx,si.wy);
+    }
+    // preview: one straight segment to axis-locked position
+    const pe=gridToWorld(previewEnd.x,previewEnd.y);
+    ctx.lineTo(pe.wx,pe.wy);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // components
+  for(const id in circuit.components){
+    const comp=circuit.components[id];
+    const isSel=APP.selection.has(comp.id);
+    const isErr=APP.simErrorIds.includes(String(comp.id))||APP.simErrorIds.some(e=>e===comp.id);
+
+    applyViewport(ctx,vp);
+    ctx.save();
+    ctx.translate(comp.x*GRID,comp.y*GRID);
+    const rot=comp.rotation*Math.PI/180;
+    ctx.rotate(rot);
+
+    ctx.strokeStyle = isErr?'#f85149': isSel?'#58a6ff':'#e6edf3';
+    ctx.lineWidth=1.5/vp.scale;
+    ctx.setLineDash([]);
+
+    switch(comp.type){
+      case 'battery':   drawBattery(ctx,comp.params); break;
+      case 'resistor':  drawResistor(ctx); break;
+      case 'capacitor': drawCapacitor(ctx); break;
+      case 'inductor':  drawInductor(ctx); break;
+      case 'switch':    drawSwitch(ctx, comp.params.state==='open'); break;
+      case 'ground':    drawGround(ctx); break;
+    }
+    ctx.restore();
+
+    // terminal dots
+    applyViewport(ctx,vp);
+    const tp=terminalPositions(comp);
+    for(const t of ['A','B']){
+      if(!tp[t]) continue;
+      const sc=gridToWorld(tp[t].x,tp[t].y);
+      const hover=APP.hover&&APP.hover.componentId===comp.id&&APP.hover.terminal===t;
+      ctx.fillStyle=hover?'#58a6ff':'#484f58';
+      ctx.beginPath();
+      ctx.arc(sc.wx,sc.wy,3/vp.scale,0,Math.PI*2);
+      ctx.fill();
+    }
+
+    // selection box
+    if(isSel){
+      applyViewport(ctx,vp);
+      ctx.save();
+      ctx.translate(comp.x*GRID,comp.y*GRID);
+      ctx.rotate(rot);
+      ctx.strokeStyle='#58a6ff';
+      ctx.lineWidth=1/vp.scale;
+      ctx.setLineDash([3/vp.scale,3/vp.scale]);
+      const hw=(COMP_HALF+0.5)*GRID, hh=(comp.type==='ground'?1.8:0.9)*GRID;
+      ctx.strokeRect(-hw,-hh,2*hw,2*hh);
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
+  }
+
+  // simulation labels (screen space)
+  ctx.setTransform(1,0,0,1,0,0);
+  if(APP.simResult){
+    const nm=_lastNodeMap;
+
+    // node voltage labels - one per node, on longest wire segment
+    const labeledNodes=new Set();
+    // Build wire membership per node
+    const nodeWires={};
+    for(const wid in circuit.wires){
+      const w=circuit.wires[wid];
+      const coord=`${w.points[0].x},${w.points[0].y}`;
+      const nk=nm.coordToNode[coord];
+      if(!nk) continue;
+      if(!nodeWires[nk]) nodeWires[nk]=[];
+      nodeWires[nk].push(w);
+    }
+
+    ctx.font='11px "Courier New", monospace';
+    ctx.textAlign='center'; ctx.textBaseline='bottom';
+    for(const [nk,v] of APP.simResult.nodeVoltages){
+      if(labeledNodes.has(nk)) continue;
+      labeledNodes.add(nk);
+      const wires=nodeWires[nk]||[];
+      let gp;
+      if(wires.length>0){
+        // find longest segment across all wires
+        let bestLen=-1;
+        for(const w of wires){
+          const mid=midpointOfLongestSegment(w);
+          const pts=w.points;
+          for(let i=0;i<pts.length-1;i++){
+            const dx=pts[i+1].x-pts[i].x, dy=pts[i+1].y-pts[i].y;
+            const len=Math.sqrt(dx*dx+dy*dy);
+            if(len>bestLen){ bestLen=len; gp=mid; }
+          }
+        }
+        if(!gp) gp=wires[0].points[0];
+      } else {
+        // label on a terminal coord
+        const coords=nm.nodes[nk];
+        if(!coords||!coords.length) continue;
+        const [cx,cy]=coords[0].split(',').map(Number);
+        gp={x:cx,y:cy};
+      }
+      const sc=gridToScreen(gp.x,gp.y,vp);
+      ctx.fillStyle='rgba(13,17,23,0.75)';
+      const txt=formatSI(v,'V');
+      const tw=ctx.measureText(txt).width;
+      ctx.fillRect(sc.sx-tw/2-3,sc.sy-15,tw+6,14);
+      ctx.fillStyle='#3fb950';
+      ctx.fillText(txt, sc.sx, sc.sy-2);
+    }
+
+    // branch current labels - below each component in screen space
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    for(const id in circuit.components){
+      const comp=circuit.components[id];
+      const cur=APP.simResult.branchCurrents.get(comp.id);
+      if(cur===undefined||cur===null) continue;
+      const sc=gridToScreen(comp.x,comp.y,vp);
+      const txt=formatSI(cur,'A');
+      const tw=ctx.measureText(txt).width;
+      const yOff=22;
+      ctx.fillStyle='rgba(13,17,23,0.75)';
+      ctx.fillRect(sc.sx-tw/2-3,sc.sy+yOff-2,tw+6,14);
+      ctx.fillStyle='#d29922';
+      ctx.fillText(txt, sc.sx, sc.sy+yOff);
+    }
+  }
+
+  // probe anchor marker
+  ctx.setTransform(1,0,0,1,0,0);
+  if(APP.probeAnchor){
+    const {sx,sy}=APP.probeAnchor;
+    ctx.strokeStyle='#bc8cff';
+    ctx.lineWidth=1.5;
+    const sz=8;
+    ctx.beginPath();
+    ctx.moveTo(sx-sz,sy); ctx.lineTo(sx+sz,sy);
+    ctx.moveTo(sx,sy-sz); ctx.lineTo(sx,sy+sz);
+    ctx.stroke();
+    ctx.strokeStyle='rgba(188,140,255,0.3)';
+    ctx.beginPath(); ctx.arc(sx,sy,sz,0,Math.PI*2); ctx.stroke();
+  }
+
+  // probe readout panels
+  APP.probeRects=[];
+  ctx.setTransform(1,0,0,1,0,0);
+  for(const pr of APP.probeReadouts){
+    const txt = pr.value!==null ? formatSI(pr.value, pr.type==='voltage'?'V':'A') : '— ';
+    const label = pr.type==='voltage'?'V':'I';
+    const line1=label+': '+txt;
+    ctx.font='11px "Courier New", monospace';
+    const w1=ctx.measureText(line1).width;
+    const pw=Math.max(w1+28,80), ph=28;
+    const px=pr.sx, py=pr.sy;
+
+    ctx.fillStyle='rgba(22,27,34,0.95)';
+    ctx.strokeStyle='#bc8cff';
+    ctx.lineWidth=1;
+    roundRect(ctx,px,py,pw,ph,4);
+    ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle='#bc8cff';
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText(line1, px+6, py+ph/2);
+
+    // close button
+    const closeX=px+pw-16, closeY=py+4, closeW=12, closeH=12;
+    ctx.fillStyle='rgba(248,81,73,0.15)';
+    roundRect(ctx,closeX,closeY,closeW,closeH,3); ctx.fill();
+    ctx.fillStyle='#f85149';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.font='9px "Courier New"';
+    ctx.fillText('✕',closeX+closeW/2,closeY+closeH/2);
+
+    APP.probeRects.push({id:pr.id, closeX, closeY, closeW, closeH, px,py,pw,ph});
+  }
+
+  // rubber band
+  if(APP.rubberBand){
+    ctx.setTransform(1,0,0,1,0,0);
+    const rb=APP.rubberBand;
+    const x=Math.min(rb.x0,rb.x1), y=Math.min(rb.y0,rb.y1);
+    const w=Math.abs(rb.x1-rb.x0), h=Math.abs(rb.y1-rb.y0);
+    ctx.fillStyle='rgba(88,166,255,0.06)';
+    ctx.strokeStyle='rgba(88,166,255,0.5)';
+    ctx.lineWidth=1;
+    ctx.setLineDash([4,4]);
+    ctx.fillRect(x,y,w,h);
+    ctx.strokeRect(x,y,w,h);
+    ctx.setLineDash([]);
+  }
+
+  // palette drag ghost
+  if(APP.drag&&APP.drag.type==='palette'){
+    applyViewport(ctx,vp);
+    ctx.globalAlpha=0.6;
+    const gx=APP.drag.ghostGX, gy=APP.drag.ghostGY;
+    ctx.save();
+    ctx.translate(gx*GRID,gy*GRID);
+    ctx.rotate(APP.drag.rotation*Math.PI/180);
+    ctx.strokeStyle='#58a6ff';
+    ctx.lineWidth=1.5/vp.scale;
+    ctx.setLineDash([]);
+    const type=APP.drag.componentType;
+    switch(type){
+      case 'battery':   drawBattery(ctx,DEFAULT_PARAMS.battery); break;
+      case 'resistor':  drawResistor(ctx); break;
+      case 'capacitor': drawCapacitor(ctx); break;
+      case 'inductor':  drawInductor(ctx); break;
+      case 'switch':    drawSwitch(ctx,true); break;
+      case 'ground':    drawGround(ctx); break;
+    }
+    ctx.restore();
+    ctx.globalAlpha=1;
+  }
+
+  // error banner DOM update
+  updateErrorBanner();
+
+  // undo/redo buttons
+  updateUndoButtons();
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath();
+}
+
+function updateErrorBanner(){
+  const banner=APP.errorBanner, txt=APP.errorText;
+  if(!banner||!txt) return;
+  if(APP.simError){ banner.classList.add('visible'); txt.textContent=APP.simError; }
+  else banner.classList.remove('visible');
+}
+
+// === UNDO / REDO ===
+function pushUndo(){
+  APP.undoStack.push(deepClone(APP.circuit));
+  APP.redoStack=[];
+}
+
+function undo(){
+  if(!APP.undoStack.length) return;
+  APP.redoStack.push(deepClone(APP.circuit));
+  APP.circuit=APP.undoStack.pop();
+  runSimulation();
+}
+
+function redo(){
+  if(!APP.redoStack.length) return;
+  APP.undoStack.push(deepClone(APP.circuit));
+  APP.circuit=APP.redoStack.pop();
+  runSimulation();
+}
+
+function updateUndoButtons(){
+  const bu=document.getElementById('btn-undo'), br=document.getElementById('btn-redo');
+  if(bu) bu.disabled=APP.undoStack.length===0;
+  if(br) br.disabled=APP.redoStack.length===0;
+}
+
+// === PROBE TOOL ===
+function probeClick(sx,sy){
+  // hit test: component body first (current probe), then wire/terminal (voltage probe)
+  const compHit=hitTestComponentBody(sx,sy);
+  if(compHit!==null){
+    // current probe — immediate, no anchor
+    const id=APP.probeNextId++;
+    APP.probeReadouts.push({ id, type:'current', targetA:null, targetB:null, componentId:compHit, value:null, sx, sy:sy+10 });
+    APP.probeAnchor=null;
+    updateProbeReadouts(); render(); return;
+  }
+
+  // voltage probe: find node
+  const nm=buildNodeMap(APP.circuit,false);
+  const nodeKey=findNodeAtScreen(sx,sy,nm);
+  if(!nodeKey) { render(); return; }
+
+  if(!APP.probeAnchor){
+    APP.probeAnchor={ nodeKey, sx, sy };
+    render(); return;
+  }
+
+  // second click
+  const id=APP.probeNextId++;
+  APP.probeReadouts.push({ id, type:'voltage', targetA:APP.probeAnchor.nodeKey, targetB:nodeKey, componentId:null, value:null, sx, sy:sy+10 });
+  APP.probeAnchor=null;
+  updateProbeReadouts(); render();
+}
+
+function findNodeAtScreen(sx,sy,nodeMap){
+  const vp=APP.viewport;
+  // check terminals
+  const nt=nearestTerminal(sx,sy,APP.circuit,vp);
+  if(nt){
+    const key=`${nt.gx},${nt.gy}`;
+    return nodeMap.coordToNode[key]||null;
+  }
+  // check wires
+  for(const wid in APP.circuit.wires){
+    const w=APP.circuit.wires[wid];
+    const pts=w.points;
+    for(let i=0;i<pts.length-1;i++){
+      const a=gridToScreen(pts[i].x,pts[i].y,vp);
+      const b=gridToScreen(pts[i+1].x,pts[i+1].y,vp);
+      if(segmentHitTest(sx,sy,a.sx,a.sy,b.sx,b.sy,8)){
+        const key=`${pts[i].x},${pts[i].y}`;
+        return nodeMap.coordToNode[key]||null;
+      }
+    }
+  }
+  return null;
+}
+
+function closeReadout(id){
+  APP.probeReadouts=APP.probeReadouts.filter(r=>r.id!==id);
+  render();
+}
+
+function updateProbeReadouts(){
+  for(const pr of APP.probeReadouts){
+    if(pr.type==='voltage'){
+      if(!APP.simResult){ pr.value=null; continue; }
+      const va=APP.simResult.nodeVoltages.get(pr.targetA);
+      const vb=APP.simResult.nodeVoltages.get(pr.targetB);
+      pr.value=(va!==undefined&&vb!==undefined)?va-vb:null;
+    } else {
+      if(!APP.simResult){ pr.value=null; continue; }
+      const cur=APP.simResult.branchCurrents.get(pr.componentId);
+      pr.value=cur!==undefined?cur:null;
+    }
+  }
+}
+
+// === PARAMETER POPOVER ===
+function openPopover(componentId, sx, sy){
+  const comp=APP.circuit.components[componentId];
+  if(!comp) return;
+  APP.popoverCompId=componentId;
+  const pop=APP.popover;
+  pop.innerHTML='';
+
+  const defs={
+    battery:  [{key:'E',  label:'E',  unit:'V',  type:'number'}],
+    resistor: [{key:'R',  label:'R',  unit:'Ω',  type:'number'}],
+    capacitor:[{key:'C',  label:'C',  unit:'F',  type:'number'}],
+    inductor: [{key:'L',  label:'L',  unit:'H',  type:'number'}],
+    switch:   [{key:'state',label:'',unit:'',type:'toggle'}],
+    ground:   []
+  };
+  const fields=defs[comp.type]||[];
+
+  for(const f of fields){
+    const row=document.createElement('div'); row.className='pop-row';
+    if(f.type==='number'){
+      const lbl=document.createElement('span'); lbl.className='pop-label'; lbl.textContent=f.label;
+      const inp=document.createElement('input'); inp.className='pop-input'; inp.type='text';
+      inp.value=comp.params[f.key]; inp.dataset.key=f.key;
+      const unit=document.createElement('span'); unit.className='pop-unit'; unit.textContent=f.unit;
+      row.appendChild(lbl); row.appendChild(inp); row.appendChild(unit);
+    } else {
+      const btn=document.createElement('button'); btn.className='pop-toggle';
+      btn.textContent=comp.params.state==='open'?'Open (click to close)':'Closed (click to open)';
+      btn.dataset.key='state';
+      btn.onclick=()=>{
+        const cur=comp.params.state==='open'?'closed':'open';
+        btn.textContent=cur==='open'?'Open (click to close)':'Closed (click to open)';
+        btn.dataset.value=cur;
+      };
+      btn.dataset.value=comp.params.state;
+      row.appendChild(btn);
+    }
+    pop.appendChild(row);
+  }
+
+  // position
+  const cw=APP.canvas.offsetWidth, ch=APP.canvas.offsetHeight;
+  let px=sx+10, py=sy+10;
+  pop.classList.add('visible');
+  const pw=pop.offsetWidth||180, ph=pop.offsetHeight||60;
+  if(px+pw>cw) px=sx-pw-10;
+  if(py+ph>ch) py=sy-ph-10;
+  pop.style.left=px+'px'; pop.style.top=py+'px';
+
+  // key handler
+  pop._keyHandler=e=>{
+    if(e.key==='Enter'){ e.preventDefault(); closePopover(true); }
+    if(e.key==='Escape'){ e.preventDefault(); closePopover(false); }
+  };
+  document.addEventListener('keydown',pop._keyHandler);
+
+  // click outside
+  setTimeout(()=>{
+    pop._outsideHandler=e=>{
+      if(!pop.contains(e.target)){ closePopover(true); }
+    };
+    document.addEventListener('mousedown',pop._outsideHandler);
+  },0);
+}
+
+function closePopover(save){
+  const pop=APP.popover;
+  if(!pop.classList.contains('visible')) return;
+  if(save&&APP.popoverCompId!==null){
+    const comp=APP.circuit.components[APP.popoverCompId];
+    if(comp){
+      let allValid=true;
+      // read number inputs
+      const inputs=pop.querySelectorAll('.pop-input');
+      for(const inp of inputs){
+        const k=inp.dataset.key;
+        const v=parseFloat(inp.value);
+        if(isNaN(v)||(k!=='E'&&v<=0)){ inp.classList.add('invalid'); allValid=false; }
+        else inp.classList.remove('invalid');
+      }
+      if(!allValid) return;
+      for(const inp of inputs){
+        dispatch({type:'SET_PARAM',id:APP.popoverCompId,key:inp.dataset.key,value:parseFloat(inp.value)});
+      }
+      // toggle
+      const toggles=pop.querySelectorAll('.pop-toggle');
+      for(const btn of toggles){
+        dispatch({type:'SET_PARAM',id:APP.popoverCompId,key:btn.dataset.key,value:btn.dataset.value});
+      }
+    }
+  }
+  pop.classList.remove('visible');
+  APP.popoverCompId=null;
+  if(pop._keyHandler) document.removeEventListener('keydown',pop._keyHandler);
+  if(pop._outsideHandler) document.removeEventListener('mousedown',pop._outsideHandler);
+}
+
+// === INTERACTION ===
+function dispatch(action){
+  pushUndo();
+  switch(action.type){
+    case 'ADD_COMPONENT':
+      APP.circuit=addComponent(APP.circuit,action.compType,action.gx,action.gy,action.rotation,deepClone(DEFAULT_PARAMS[action.compType])); break;
+    case 'DELETE':
+      APP.circuit=deleteComponents(APP.circuit,action.ids); break;
+    case 'MOVE':
+      APP.circuit=moveComponent(APP.circuit,action.id,action.gx,action.gy); break;
+    case 'SET_PARAM':
+      APP.circuit=setParam(APP.circuit,action.id,action.key,action.value); break;
+    case 'ADD_WIRE':
+      APP.circuit=addWire(APP.circuit,action.points); break;
+    case 'DELETE_WIRES':
+      APP.circuit=deleteWires(APP.circuit,action.ids); break;
+    case 'SPLIT_WIRE':
+      APP.circuit=splitWire(APP.circuit,action.wireId,action.gx,action.gy); break;
+    case 'ROTATE':
+      APP.circuit=setParam(APP.circuit,action.id,'__rotation__',null);
+      // rotation is not in params, handle directly
+      { const c=deepClone(APP.circuit);
+        c.components[action.id].rotation=(c.components[action.id].rotation+90)%360;
+        APP.circuit=c; } break;
+  }
+  // clear stale results when circuit changes but don't auto-simulate
+  APP.simResult=null; APP.simError=null; APP.simErrorIds=[];
+  updateProbeReadouts();
+  render();
+}
+
+// special rotate dispatch
+function rotateComponent(id){
+  pushUndo();
+  const c=deepClone(APP.circuit);
+  c.components[id].rotation=(c.components[id].rotation+90)%360;
+  APP.circuit=c;
+  APP.redoStack=[];
+  APP.simResult=null; APP.simError=null; APP.simErrorIds=[];
+  updateProbeReadouts();
+  render();
+}
+
+function hitTestComponentBody(sx,sy){
+  const vp=APP.viewport;
+  for(const id in APP.circuit.components){
+    const comp=APP.circuit.components[id];
+    const sc=gridToScreen(comp.x,comp.y,vp);
+    const rot=comp.rotation*Math.PI/180;
+    // transform mouse to component local space
+    const dx=sx-sc.sx, dy=sy-sc.sy;
+    const cos=Math.cos(-rot), sin=Math.sin(-rot);
+    const lx=dx*cos-dy*sin, ly=dx*sin+dy*cos;
+    const hw=(COMP_HALF+0.3)*GRID*vp.scale;
+    const hh=(comp.type==='ground'?1.5:0.8)*GRID*vp.scale;
+    if(Math.abs(lx)<=hw&&Math.abs(ly)<=hh) return comp.id;
+  }
+  return null;
+}
+
+function hitTestWire(sx,sy){
+  const vp=APP.viewport;
+  for(const wid in APP.circuit.wires){
+    const w=APP.circuit.wires[wid];
+    const pts=w.points;
+    for(let i=0;i<pts.length-1;i++){
+      const a=gridToScreen(pts[i].x,pts[i].y,vp);
+      const b=gridToScreen(pts[i+1].x,pts[i+1].y,vp);
+      if(segmentHitTest(sx,sy,a.sx,a.sy,b.sx,b.sy,6)) return parseInt(wid);
+    }
+  }
+  return null;
+}
+
+function hitTestProbeClose(sx,sy){
+  for(const r of APP.probeRects){
+    if(sx>=r.closeX&&sx<=r.closeX+r.closeW&&sy>=r.closeY&&sy<=r.closeY+r.closeH) return r.id;
+  }
+  return null;
+}
+
+function onMouseDown(e){
+  const sx=e.offsetX, sy=e.offsetY;
+  APP.mouseScreen={x:sx,y:sy};
+
+  // probe close button — always takes priority
+  const closeId=hitTestProbeClose(sx,sy);
+  if(closeId!==null){ closeReadout(closeId); return; }
+
+  // probe tool
+  if(APP.activeTool==='probe'){ probeClick(sx,sy); return; }
+
+  // pan: middle mouse or space+left
+  if(e.button===1||(e.button===0&&APP.spaceDown)){
+    APP.panStart={sx,sy,tx:APP.viewport.tx,ty:APP.viewport.ty};
+    APP.canvas.classList.add('cur-grabbing');
+    e.preventDefault(); return;
+  }
+
+  if(e.button!==0) return;
+
+  // === WIRE TOOL MODE ===
+  if(APP.activeTool==='wire'){
+    if(APP.wireInProgress){
+      // already drawing — try to land on a valid target first
+      const landed=tryLandWire(sx,sy);
+      if(!landed){
+        // plant a waypoint at the axis-locked position
+        const wip=APP.wireInProgress;
+        const last=wip.points[wip.points.length-1];
+        const gp=screenToGrid(sx,sy,APP.viewport);
+        const snapped=straightSegmentEnd(last,gp,wip.flipL);
+        // only add if it's a new position
+        if(snapped.x!==last.x||snapped.y!==last.y){
+          wip.points.push(snapped);
+        }
+        render();
+      }
+    } else {
+      // start a new wire
+      const startPt=findWireStartPoint(sx,sy);
+      APP.wireInProgress={ points:[{x:startPt.x,y:startPt.y}], flipL:false };
+      render();
+    }
+    return;
+  }
+
+  // === SELECT TOOL MODE ===
+  // component body → select / move
+  const compId=hitTestComponentBody(sx,sy);
+  if(compId!==null){
+    if(!APP.selection.has(compId)){
+      if(!e.shiftKey) APP.selection.clear();
+      APP.selection.add(compId);
+    }
+    const comp=APP.circuit.components[compId];
+    APP.drag={
+      type:'move', id:compId,
+      startGX:comp.x, startGY:comp.y,
+      startSX:sx, startSY:sy,
+      moved:false
+    };
+    render(); return;
+  }
+
+  // wire hit → select
+  const wireId=hitTestWire(sx,sy);
+  if(wireId!==null){
+    if(!e.shiftKey) APP.selection.clear();
+    APP.selection.add(wireId);
+    render(); return;
+  }
+
+  // empty canvas → rubber band
+  APP.selection.clear();
+  APP.rubberBand={x0:sx,y0:sy,x1:sx,y1:sy};
+  render();
+}
+
+function onMouseMove(e){
+  const rect=APP.canvas.getBoundingClientRect();
+  const sx=e.clientX-rect.left, sy=e.clientY-rect.top;
+  APP.mouseScreen={x:sx,y:sy};
+
+  if(APP.panStart){
+    const dx=sx-APP.panStart.sx, dy=sy-APP.panStart.sy;
+    APP.viewport.tx=APP.panStart.tx+dx;
+    APP.viewport.ty=APP.panStart.ty+dy;
+    render(); return;
+  }
+
+  if(APP.drag&&APP.drag.type==='move'){
+    const gp=screenToGrid(sx,sy,APP.viewport);
+    // only update ghost, don't dispatch until mouseup
+    APP.drag.ghostGX=gp.x; APP.drag.ghostGY=gp.y; APP.drag.moved=true;
+    // temp move for visual
+    APP._tempMoveGX=gp.x; APP._tempMoveGY=gp.y;
+    render(); return;
+  }
+
+  if(APP.drag&&APP.drag.type==='palette'){
+    const gp=screenToGrid(sx,sy,APP.viewport);
+    APP.drag.ghostGX=gp.x; APP.drag.ghostGY=gp.y;
+    render(); return;
+  }
+
+  if(APP.rubberBand){
+    APP.rubberBand.x1=sx; APP.rubberBand.y1=sy;
+    render(); return;
+  }
+
+  // only update hover/wire-preview when actually over the canvas
+  const rect2=APP.canvas.getBoundingClientRect();
+  const overCanvas=e.clientX>=rect2.left&&e.clientX<=rect2.right&&e.clientY>=rect2.top&&e.clientY<=rect2.bottom;
+  if(!overCanvas){ return; }
+
+  // hover
+  const nt=nearestTerminal(sx,sy,APP.circuit,APP.viewport);
+  APP.hover=nt?{componentId:nt.componentId,terminal:nt.terminal}:null;
+  render();
+}
+
+// Find a valid wire start point: terminal snap > existing wire endpoint > grid point
+function findWireStartPoint(sx, sy) {
+  const term = nearestTerminal(sx, sy, APP.circuit, APP.viewport);
+  if (term) return { x: term.gx, y: term.gy };
+
+  const ep = nearestWireEndpoint(sx, sy);
+  if (ep) return { x: ep.x, y: ep.y };
+
+  return screenToGrid(sx, sy, APP.viewport);
+}
+
+// Try to land the in-progress wire on a valid target at screen (sx,sy).
+// Returns true if wire was committed, false if no valid target found.
+function tryLandWire(sx, sy) {
+  const wip = APP.wireInProgress;
+  if (!wip) return false;
+  const last = wip.points[wip.points.length - 1];
+
+  // 1. terminal snap
+  const term = nearestTerminal(sx, sy, APP.circuit, APP.viewport);
+  if (term) {
+    const tgx = term.gx, tgy = term.gy;
+    // don't land on the start point
+    if (tgx === wip.points[0].x && tgy === wip.points[0].y) return false;
+    commitWire(last, { x: tgx, y: tgy }, wip);
+    return true;
+  }
+
+  // 2. existing wire endpoint within snap radius
+  const ep = nearestWireEndpoint(sx, sy);
+  if (ep) {
+    if (ep.x === wip.points[0].x && ep.y === wip.points[0].y) return false;
+    commitWire(last, ep, wip);
+    return true;
+  }
+
+  // 3. mid-segment of an existing wire → T-junction
+  const seg = nearestWireSegment(sx, sy);
+  if (seg) {
+    if (seg.gx === wip.points[0].x && seg.gy === wip.points[0].y) return false;
+    // split the existing wire first, then land
+    dispatch({ type: 'SPLIT_WIRE', wireId: seg.wireId, gx: seg.gx, gy: seg.gy });
+    commitWire(last, { x: seg.gx, y: seg.gy }, wip);
+    return true;
+  }
+
+  return false;
+}
+
+function commitWire(last, target, wip) {
+  // Each commit adds one straight (H or V) segment from the last waypoint
+  // to the axis-locked position toward target, then the target itself.
+  const segEnd = straightSegmentEnd(last, target, wip.flipL);
+  // segEnd and target may be the same point if already axis-aligned
+  const newPts = [segEnd, target].filter(
+    (p, i, arr) => i === 0 || p.x !== arr[i-1].x || p.y !== arr[i-1].y
+  );
+  const finalPts = dedupePoints([...wip.points, ...newPts]);
+  if (finalPts.length >= 2) {
+    dispatch({ type: 'ADD_WIRE', points: finalPts });
+  }
+  APP.wireInProgress = null;
+  render();
+}
+
+// Return nearest wire endpoint (first or last point) within TERMINAL_HIT px
+function nearestWireEndpoint(sx, sy) {
+  const vp = APP.viewport;
+  let best = null, bestDist = Infinity;
+  for (const wid in APP.circuit.wires) {
+    const pts = APP.circuit.wires[wid].points;
+    for (const p of [pts[0], pts[pts.length - 1]]) {
+      const sc = gridToScreen(p.x, p.y, vp);
+      const d = Math.hypot(sc.sx - sx, sc.sy - sy);
+      if (d < bestDist && d <= TERMINAL_HIT) { bestDist = d; best = { x: p.x, y: p.y }; }
+    }
+  }
+  return best;
+}
+
+// Return the nearest wire mid-segment snap point within hit threshold
+function nearestWireSegment(sx, sy) {
+  const vp = APP.viewport;
+  const THRESHOLD = 8;
+  for (const wid in APP.circuit.wires) {
+    const w = APP.circuit.wires[wid];
+    const pts = w.points;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = gridToScreen(pts[i].x, pts[i].y, vp);
+      const b = gridToScreen(pts[i+1].x, pts[i+1].y, vp);
+      if (segmentHitTest(sx, sy, a.sx, a.sy, b.sx, b.sy, THRESHOLD)) {
+        // snap to grid point on segment
+        const gp = screenToGrid(sx, sy, vp);
+        // clamp to the segment's axis
+        let gx = gp.x, gy = gp.y;
+        if (pts[i].x === pts[i+1].x) { gx = pts[i].x; }
+        else if (pts[i].y === pts[i+1].y) { gy = pts[i].y; }
+        // only a T-junction if not at an endpoint
+        if ((gx === pts[i].x && gy === pts[i].y) ||
+            (gx === pts[i+1].x && gy === pts[i+1].y)) return null;
+        return { wireId: parseInt(wid), gx, gy };
+      }
+    }
+  }
+  return null;
+}
+
+function onMouseUp(e){
+  const rect=APP.canvas.getBoundingClientRect();
+  const sx=e.clientX-rect.left, sy=e.clientY-rect.top;
+
+  if(APP.panStart){
+    APP.panStart=null;
+    APP.canvas.classList.remove('cur-grabbing');
+    return;
+  }
+
+  if(APP.drag&&APP.drag.type==='move'){
+    if(APP.drag.moved){
+      const gp=screenToGrid(sx,sy,APP.viewport);
+      dispatch({type:'MOVE',id:APP.drag.id,gx:gp.x,gy:gp.y});
+    }
+    APP.drag=null; render(); return;
+  }
+
+  if(APP.drag&&APP.drag.type==='palette'){
+    const wrap=document.getElementById('canvas-wrap');
+    const rect=wrap.getBoundingClientRect();
+    if(e.clientX>=rect.left&&e.clientX<=rect.right&&e.clientY>=rect.top&&e.clientY<=rect.bottom){
+      const gp=screenToGrid(sx,sy,APP.viewport);
+      dispatch({type:'ADD_COMPONENT',compType:APP.drag.componentType,gx:gp.x,gy:gp.y,rotation:APP.drag.rotation||0});
+    }
+    APP.drag=null; render(); return;
+  }
+
+  if(APP.rubberBand){
+    const rb=APP.rubberBand;
+    const x0=Math.min(rb.x0,rb.x1), y0=Math.min(rb.y0,rb.y1);
+    const x1=Math.max(rb.x0,rb.x1), y1=Math.max(rb.y0,rb.y1);
+    APP.selection.clear();
+    for(const id in APP.circuit.components){
+      const comp=APP.circuit.components[id];
+      const sc=gridToScreen(comp.x,comp.y,APP.viewport);
+      if(sc.sx>=x0&&sc.sx<=x1&&sc.sy>=y0&&sc.sy<=y1) APP.selection.add(comp.id);
+    }
+    APP.rubberBand=null;
+    render(); return;
+  }
+}
+
+function findWireSegmentAt(gx,gy){
+  for(const wid in APP.circuit.wires){
+    const w=APP.circuit.wires[wid];
+    const pts=w.points;
+    for(let i=0;i<pts.length-1;i++){
+      const ax=pts[i].x,ay=pts[i].y,bx=pts[i+1].x,by=pts[i+1].y;
+      // is gx,gy on this segment (not at endpoints)?
+      if(ax===bx&&bx===gx&&Math.min(ay,by)<gy&&gy<Math.max(ay,by)) return parseInt(wid);
+      if(ay===by&&by===gy&&Math.min(ax,bx)<gx&&gx<Math.max(ax,bx)) return parseInt(wid);
+    }
+  }
+  return null;
+}
+
+function onDblClick(e){
+  const sx=e.offsetX, sy=e.offsetY;
+  const id=hitTestComponentBody(sx,sy);
+  if(id!==null) openPopover(id,sx,sy);
+}
+
+function zoomToPointer(sx,sy,delta){
+  const vp=APP.viewport;
+  const factor=delta>0?1/ZOOM_FACTOR:ZOOM_FACTOR;
+  const newScale=Math.max(SCALE_MIN,Math.min(SCALE_MAX,vp.scale*factor));
+  const scaleDiff=newScale/vp.scale;
+  vp.tx=sx-(sx-vp.tx)*scaleDiff;
+  vp.ty=sy-(sy-vp.ty)*scaleDiff;
+  vp.scale=newScale;
+  document.getElementById('btn-zoom-reset').textContent=Math.round(newScale*100)+'%';
+}
+
+function onWheel(e){
+  e.preventDefault();
+  zoomToPointer(e.offsetX,e.offsetY,e.deltaY);
+  render();
+}
+
+function onKeyDown(e){
+  const active=document.activeElement;
+  if(active&&(active.tagName==='INPUT'||active.tagName==='TEXTAREA')) return;
+
+  if(e.key==='Enter'&&!e.ctrlKey&&!e.metaKey){
+    e.preventDefault(); runSimulation(); return;
+  }
+
+  if(e.key==='r'||e.key==='R'){
+    if(APP.drag&&APP.drag.type==='palette'){
+      APP.drag.rotation=((APP.drag.rotation||0)+90)%360; render(); return;
+    }
+    for(const id of APP.selection){
+      if(APP.circuit.components[id]) rotateComponent(id);
+    }
+    return;
+  }
+
+  if(e.key==='x'||e.key==='X'){
+    if(APP.wireInProgress){ APP.wireInProgress.flipL=!APP.wireInProgress.flipL; render(); }
+    return;
+  }
+
+  if(e.key==='p'||e.key==='P'){
+    e.preventDefault();
+    toggleProbeTool(); return;
+  }
+
+  if(e.key==='w'||e.key==='W'){
+    e.preventDefault();
+    toggleWireTool(); return;
+  }
+
+  if(e.key==='s'||e.key==='S'){
+    e.preventDefault();
+    if(APP.activeTool!=='select'){ APP.wireInProgress=null; APP.probeAnchor=null; setActiveTool('select'); render(); }
+    return;
+  }
+
+  if(e.key==='Escape'){
+    closePopover(false);
+    if(APP.wireInProgress){ APP.wireInProgress=null; setActiveTool('select'); render(); return; }
+    if(APP.activeTool==='probe'){ APP.probeAnchor=null; setActiveTool('select'); render(); return; }
+    APP.selection.clear(); render(); return;
+  }
+
+  if(e.key==='Delete'||e.key==='Backspace'){
+    if(!APP.selection.size) return;
+    e.preventDefault();
+    const compIds=[], wireIds=[];
+    for(const id of APP.selection){
+      if(APP.circuit.components[id]) compIds.push(id);
+      else if(APP.circuit.wires[id]) wireIds.push(id);
+    }
+    if(compIds.length) dispatch({type:'DELETE',ids:compIds});
+    if(wireIds.length) dispatch({type:'DELETE_WIRES',ids:wireIds});
+    APP.selection.clear(); render(); return;
+  }
+
+  if(e.ctrlKey||e.metaKey){
+    if(e.key==='z'){ e.preventDefault(); undo(); return; }
+    if(e.key==='y'||(e.key==='Z'&&e.shiftKey)){ e.preventDefault(); redo(); return; }
+    if(e.key==='='||e.key==='+'){ e.preventDefault();
+      const c=APP.canvas; zoomToPointer(c.width/2,c.height/2,-1); render(); return; }
+    if(e.key==='-'){ e.preventDefault();
+      const c=APP.canvas; zoomToPointer(c.width/2,c.height/2,1); render(); return; }
+    if(e.key==='0'){ e.preventDefault();
+      APP.viewport.scale=1; APP.viewport.tx=APP.canvas.width/2; APP.viewport.ty=APP.canvas.height/2;
+      document.getElementById('btn-zoom-reset').textContent='100%'; render(); return; }
+  }
+
+  const PAN=e.shiftKey?10:1;
+  if(e.key==='ArrowLeft'){ e.preventDefault(); APP.viewport.tx+=PAN*GRID*APP.viewport.scale; render(); return; }
+  if(e.key==='ArrowRight'){ e.preventDefault(); APP.viewport.tx-=PAN*GRID*APP.viewport.scale; render(); return; }
+  if(e.key==='ArrowUp'){ e.preventDefault(); APP.viewport.ty+=PAN*GRID*APP.viewport.scale; render(); return; }
+  if(e.key==='ArrowDown'){ e.preventDefault(); APP.viewport.ty-=PAN*GRID*APP.viewport.scale; render(); return; }
+}
+
+function setActiveTool(t){
+  APP.activeTool=t;
+  const el=document.getElementById('tool-name');
+  if(el) el.textContent=t.charAt(0).toUpperCase()+t.slice(1);
+  const canvas=APP.canvas;
+  canvas.classList.remove('cur-default','cur-grab','cur-probe','cur-crosshair');
+  if(t==='probe') canvas.classList.add('cur-probe');
+  else if(t==='wire') canvas.classList.add('cur-crosshair');
+  else canvas.classList.add('cur-default');
+  const pb=document.getElementById('btn-probe');
+  if(pb) pb.classList.toggle('active',t==='probe');
+  const wb=document.getElementById('btn-wire-tool');
+  if(wb) wb.classList.toggle('active',t==='wire');
+}
+
+function toggleWireTool(){
+  if(APP.activeTool==='wire'){
+    APP.wireInProgress=null;
+    setActiveTool('select');
+  } else {
+    setActiveTool('wire');
+  }
+  render();
+}
+
+function toggleProbeTool(){
+  if(APP.activeTool==='probe'){ APP.probeAnchor=null; setActiveTool('select'); }
+  else { APP.wireInProgress=null; setActiveTool('probe'); }
+  render();
+}
+
+// space key pan
+window.addEventListener('keydown',e=>{
+  if(e.code==='Space'&&!APP.spaceDown){
+    const active=document.activeElement;
+    if(active&&(active.tagName==='INPUT'||active.tagName==='TEXTAREA')) return;
+    e.preventDefault(); APP.spaceDown=true;
+    APP.canvas.classList.add('cur-grab');
+  }
+});
+window.addEventListener('keyup',e=>{
+  if(e.code==='Space'){ APP.spaceDown=false;
+    APP.canvas.classList.remove('cur-grab','cur-grabbing');
+  }
+});
+
+function initPalette(){
+  const items=document.querySelectorAll('.palette-item');
+  items.forEach(item=>{
+    item.addEventListener('mousedown',e=>{
+      if(e.button!==0) return;
+      e.preventDefault();
+      const type=item.dataset.type;
+      const canvasRect=APP.canvas.getBoundingClientRect();
+      const sx=e.clientX-canvasRect.left, sy=e.clientY-canvasRect.top;
+      const gp=screenToGrid(sx,sy,APP.viewport);
+      APP.drag={type:'palette',componentType:type,ghostGX:gp.x,ghostGY:gp.y,rotation:0};
+    });
+  });
+
+  // draw palette preview symbols
+  items.forEach(item=>{
+    const c=item.querySelector('canvas');
+    if(!c) return;
+    const ctx=c.getContext('2d');
+    const type=item.dataset.type;
+    ctx.clearRect(0,0,52,28);
+    ctx.strokeStyle='#e6edf3';
+    ctx.lineWidth=1.5;
+    ctx.save();
+    ctx.translate(26,14);
+    // scale so COMP_HALF*GRID*2 = 40px → scale = 40/(4*GRID) = 0.5
+    const sc=0.48;
+    ctx.scale(sc,sc);
+    switch(type){
+      case 'battery':   drawBattery(ctx,DEFAULT_PARAMS.battery); break;
+      case 'resistor':  drawResistor(ctx); break;
+      case 'capacitor': drawCapacitor(ctx); break;
+      case 'inductor':  drawInductor(ctx); break;
+      case 'switch':    drawSwitch(ctx,true); break;
+      case 'ground':
+        ctx.translate(0,GRID*0.5);
+        drawGround(ctx); break;
+    }
+    ctx.restore();
+  });
+}
+
+function resizeCanvas(){
+  const wrap=document.getElementById('canvas-wrap');
+  const canvas=APP.canvas;
+  const w=wrap.clientWidth, h=wrap.clientHeight;
+  canvas.width=w; canvas.height=h;
+  render();
+}
+
+// === BOOTSTRAP ===
+window.addEventListener('DOMContentLoaded',()=>{
+  APP.canvas      = document.getElementById('canvas');
+  APP.ctx         = APP.canvas.getContext('2d');
+  APP.popover     = document.getElementById('popover');
+  APP.errorBanner = document.getElementById('error-banner');
+  APP.errorText   = document.getElementById('error-text');
+
+  APP.circuit = emptyCircuit();
+  APP.viewport = { tx: 0, ty: 0, scale: 1.0 };
+
+  resizeCanvas();
+  // center after sizing
+  APP.viewport.tx = APP.canvas.width/2;
+  APP.viewport.ty = APP.canvas.height/2;
+
+  window.addEventListener('resize', resizeCanvas);
+
+  APP.canvas.addEventListener('mousedown', onMouseDown);
+  window.addEventListener('mousemove', onMouseMove);
+  window.addEventListener('mouseup', onMouseUp);
+  APP.canvas.addEventListener('dblclick',  onDblClick);
+  APP.canvas.addEventListener('wheel',     onWheel, {passive:false});
+  window.addEventListener('keydown', onKeyDown);
+
+  // prevent middle mouse scroll
+  APP.canvas.addEventListener('mousedown',e=>{if(e.button===1)e.preventDefault();},{passive:false});
+
+  // top bar buttons
+  document.getElementById('btn-undo').onclick=undo;
+  document.getElementById('btn-redo').onclick=redo;
+  document.getElementById('btn-zoom-in').onclick=()=>{
+    const c=APP.canvas; zoomToPointer(c.width/2,c.height/2,-1); render();
+  };
+  document.getElementById('btn-zoom-out').onclick=()=>{
+    const c=APP.canvas; zoomToPointer(c.width/2,c.height/2,1); render();
+  };
+  document.getElementById('btn-zoom-reset').onclick=()=>{
+    APP.viewport.scale=1; APP.viewport.tx=APP.canvas.width/2; APP.viewport.ty=APP.canvas.height/2;
+    document.getElementById('btn-zoom-reset').textContent='100%'; render();
+  };
+  document.getElementById('btn-probe').onclick=toggleProbeTool;
+  document.getElementById('btn-wire-tool').onclick=toggleWireTool;
+  document.getElementById('btn-run').onclick=runSimulation;
+  document.getElementById('error-dismiss').onclick=()=>{
+    APP.simError=null; APP.simErrorIds=[]; render();
+  };
+
+  document.getElementById('btn-help').onclick = () => {
+    const panel = document.getElementById('help-panel');
+    panel.classList.toggle('collapsed');
+    document.getElementById('btn-help').classList.toggle('active', !panel.classList.contains('collapsed'));
+  };
+
+  // collapsible full reference
+  document.getElementById('ref-toggle').onclick = () => {
+    const btn  = document.getElementById('ref-toggle');
+    const body = document.getElementById('ref-body');
+    btn.classList.toggle('open');
+    body.classList.toggle('open');
+  };
+
+  initPalette();
+  setActiveTool('select');
+  render();
+});
+</script>
+</body>
+</html>
