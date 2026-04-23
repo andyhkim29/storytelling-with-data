@@ -6,459 +6,461 @@ transition: fade 0.25s
 author: Contextual Dynamics Lab
 ---
 
-# Vibe Coding: AI-Assisted Development
-## Jeremy R. Manning
+# Vibe coding: tips and tricks
 ### PSYC 81.09: Storytelling with Data
 
+Jeremy R. Manning
+Dartmouth College
+Spring 2026
+
 ---
 
-## What is vibe coding?
+# Today's agenda
 
-<div class="definition-box" data-title="Vibe coding">
+<div class="definition-box" data-title="What is vibe coding?">
 
-**Vibe coding** is the practice of using AI coding agents to rapidly prototype and implement software by **describing what you want in natural language**, then iterating on the output. You focus on the *what* and *why* — the AI handles the *how*.
+Using AI coding agents to rapidly prototype and implement software by describing what you want in natural language, then iterating on the output.
+
+</div>
+
+<div class="note-box" data-title="Plan for today">
+
+1. **The core idea** — vibe coding done well vs. done badly
+2. **Tools** — free options for Dartmouth students
+3. **Spec-kit workflow** — structured specifications → implementation
+4. **Live demo** — let's build something delightful together (for Assignment 3!)
 
 </div>
 
 ---
-
-## Why vibe coding matters for data storytelling
-
-<div class="important-box" data-title="Automation-resilient skills">
-
-AI can handle syntax, boilerplate, and implementation details. That frees you to focus on the skills that **can't be automated**:
-
-- **Critical thinking** — Is this the right question to ask?
-- **Problem framing** — What data do we need and why?
-- **Storytelling** — How do we communicate findings to an audience?
-- **Verification** — Does the output actually make sense?
-
-These are the skills that matter most in a world of AI tools (Donoghue et al., 2020, §3.5).
-
-</div>
-
----
-
-## The vibe coding mindset
-
-<div class="note-box" data-title="You + AI = a team">
-
-| You | AI |
-|-|-|
-| **Direct** the project | **Execute** the details |
-| **Verify** correctness | **Generate** code and text |
-| **Understand** the logic | **Remember** syntax and APIs |
-| **Ask** the right questions | **Produce** candidate answers |
-
-You don't need to memorize Python syntax. You *do* need to understand what your code is doing and why.
-
-</div>
-
----
-
-## Free AI tools at Dartmouth
-
-<div class="tip-box" data-title="Your Dartmouth AI toolkit">
-
-- **[chat.dartmouth.edu](https://chat.dartmouth.edu)** — Access to Claude, ChatGPT, Mistral, and more. Chat interface for general-purpose AI assistance.
-- **[claude.dartmouth.edu](https://claude.dartmouth.edu)** — Dedicated Claude access with extended features.
-
-Both are **free with your Dartmouth credentials** — no subscriptions or API keys needed.
-
-</div>
-
----
-
-## Fallback options
-
-<div class="note-box" data-title="Browser-only and off-campus alternatives">
-
-If you can't access the Dartmouth tools or need browser-only options:
-
-- **[claude.ai](https://claude.ai)** — Free tier available (rate-limited)
-- **GitHub Copilot** — Free with a [GitHub Student Developer Pack](https://education.github.com/pack)
-- **Google Colab AI features** — Built-in code suggestions in Colab notebooks
-
-These are backup options — the Dartmouth tools should be your first choice.
-
-</div>
-
----
-
-## Claude Code: your AI coding agent
-
-<div class="definition-box" data-title="What is Claude Code?">
-
-**Claude Code** is a terminal-based AI agent that can:
-
-- **Read** your entire project and understand its structure
-- **Write** code, tests, and documentation
-- **Run** commands and see the output
-- **Manage** Git commits, branches, and pull requests
-- **Iterate** based on errors and your feedback
-
-It lives in your terminal and works directly with your files — no copy-pasting between browser tabs.
-
-</div>
-
----
-
 <!-- _class: scale-90 -->
 
-## Installing Claude Code
+# The core idea
 
-<div class="example-box" data-title="Setup (macOS / Linux / Windows WSL)">
+<div class="important-box" data-title="Vibe coding is NOT making a wish">
 
-**1. Install Node.js** (if you don't already have it):
-```bash
-# macOS with Homebrew
-brew install node
+Vibe coding means **spelling out the complete logic** of the problem — exactly like sketching a complicated program you were planning out on a whiteboard.
 
-# Or download from https://nodejs.org
-```
+Then you use that sketch to guide the LLM to implement it.
 
-**2. Install Claude Code:**
+</div>
+
+<div class="warning-box" data-title="What doesn't work (especially for complex projects)">
+
+Describing at a **very high level** what you want, and expecting the LLM to resolve the massive ambiguities in the way you were thinking. You end up with something that *kind of* works but isn't what you had in mind — and the gap widens the longer you iterate.
+
+</div>
+
+---
+<!-- _class: scale-90 -->
+
+# Under- vs. over-specification
+
+<div class="warning-box" data-title="Under-specified">
+
+`"Build me a Spotify dashboard."`
+
+The LLM guesses at your intent — you get generic, forgettable output. Worse: you don't notice the gap until you've spent an hour iterating on the wrong thing.
+
+</div>
+
+<div class="tip-box" data-title="Well-specified">
+
+`"Build a single HTML page that loads my Spotify listening history. Show a stacked area chart of minutes listened per genre per month. When I hover, show the top 3 tracks from that genre that month. Color palette matches my favorite album cover. Works on mobile. No server — all processing in the browser."`
+
+Now the LLM knows what "good" looks like — and you've clarified your own thinking in the process.
+
+</div>
+
+---
+<!-- _class: scale-80 -->
+
+# Free coding tools (for students)
+
+<div class="example-box" data-title="Check these out!">
+
+- **Dartmouth Claude** ([claude.dartmouth.edu](https://claude.dartmouth.edu)): powerful coding model, free for Dartmouth students, faculty, and staff
+- **Dartmouth GenAI** ([chat.dartmouth.edu](https://chat.dartmouth.edu)): free access to many models
+- **GitHub Copilot** (free for students): great at code completion, chat assistance
+- **Google Gemini** (free for students): long context, reasoning-heavy tasks
+- **Ollama** and **LM Studio**: run LLMs locally
+- **Hugging Face**: open models, useful for integrating into projects
+
+</div>
+
+<div class="note-box" data-title="Paid options if you want them">
+
+**Claude Code** and **OpenAI Codex** both have paid tiers that are worth it if you code a lot. Most providers offer student discounts — check before paying full price.
+
+</div>
+
+---
+<!-- _class: scale-80 -->
+
+# Setting up your environment
+
+<div class="definition-box" data-title="Two main paths">
+
+1. **Integrated Development Environment (IDE):** full-featured, syntax highlighting, debugging, Git integration, extensions (VS Code, PyCharm, Cursor)
+2. **Terminal-based coding agent:** lightweight, fast, scriptable (Claude Code, Roo Code, Codex CLI)
+
+</div>
+
+<div class="note-box" data-title="Also worth trying">
+
+- Claude, OpenAI, and Roo all have native desktop apps that combine terminal agents with IDE features
+- AI-first IDEs like [Cursor](https://cursor.com/) and [Antigravity](https://antigravity.google/)
+- Google Colab has AI coding built in — no install needed
+
+</div>
+
+---
+<!-- _class: scale-60 -->
+
+# Setting up VS Code
+
+![width:1000px](figs/vibe_coding/vs_code_cc.png)
+
+---
+
+# Setting up VS Code (details)
+
+<div class="example-box" data-title="Steps">
+
+- Download and install from [code.visualstudio.com](https://code.visualstudio.com)
+- Install essential extensions:
+  - GitHub Copilot
+  - Jupyter
+  - Python
+  - Claude Code (or Roo Code)
+- Activate Copilot with your GitHub account (click the Accounts icon in bottom left)
+
+</div>
+
+---
+
+# Setting up Claude Code (in Terminal)
+
+<div class="note-box" data-title="Install command">
+
 ```bash
 npm install -g @anthropic-ai/claude-code
 ```
 
-**3. Launch it:**
+</div>
+
+![width:700px](figs/vibe_coding/terminal_launch_cc.png)
+
+---
+<!-- _class: scale-80 -->
+
+# No Claude Code subscription? Use Roo Code
+
+<div class="tip-box" data-title="Roo Code ([roocode.com](https://roocode.com/))">
+
+An open-source alternative that works inside VS Code. Roo Code:
+
+- Integrates with **spec-kit** (same workflow we'll use today)
+- Connects to **[chat.dartmouth.edu](https://chat.dartmouth.edu)** — use your Dartmouth credentials, no subscription needed
+- Supports many other providers (OpenAI, Google, Anthropic, Ollama)
+
+</div>
+
+<div class="example-box" data-title="Install">
+
+1. In VS Code, open the Extensions sidebar and search for **Roo Code**
+2. Install, then click the Roo icon in the activity bar
+3. Configure the provider: pick "OpenAI-compatible" and point it at `https://chat.dartmouth.edu/v1`
+4. Paste your Dartmouth API key (generate one in your Dartmouth Chat settings)
+
+</div>
+
+---
+<!-- _class: scale-60 -->
+
+# Launch Claude Code
+
+![width:900px](figs/vibe_coding/cc_terminal.png)
+
+---
+
+# Claude Code configuration
+
+<div class="note-box" data-title="Key things to know">
+
+- Use `/model` to switch between models (Claude Sonnet, Opus, Haiku)
+- Connect with your Anthropic account, or use GitHub Copilot models
+- Runs in your terminal inside your project directory
+- It can read files, write code, run commands, and browse the web
+
+</div>
+
+---
+
+# Spec-kit: a framework for AI-assisted software development
+
+<div class="definition-box" data-title="What is spec-kit?">
+
+A "spec" is a detailed, unambiguous description of what a software project should do. Spec-kit is a workflow for using AI to go from specification to implementation in a structured way.
+
+**This is the sketch that makes vibe coding work.**
+
+</div>
+
+<div class="example-box" data-title="Install it!">
+
 ```bash
-cd your-project-folder
-claude
+# Install the spec-kit CLI globally
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+
+# Set up spec-kit in your project (from within your project folder)
+specify init --here --ai claude
 ```
 
 </div>
 
-<div class="note-box" data-title="Browser alternative">
+---
+<!-- _class: scale-80 -->
 
-If you can't install software locally, use **[claude.dartmouth.edu](https://claude.dartmouth.edu)** or **[claude.ai](https://claude.ai)** in your browser instead.
+# Orienting Claude Code to your project
+
+<div class="note-box" data-title="Start here">
+
+Clone (download) your repo and `cd` into it.
+
+</div>
+
+<div class="example-box" data-title="Bootstrap Claude Code">
+
+- Launch Claude Code (run `claude` inside the project folder)
+- Run `/init` to tell Claude to explore your project folder
+- It maintains a `CLAUDE.md` file to help future sessions understand the project
 
 </div>
 
 ---
+<!-- _class: scale-80 -->
 
-## Basic Claude Code usage
+# The spec-kit workflow
 
-<div class="example-box" data-title="A typical interaction">
+<div class="example-box" data-title="6 steps from idea to working code">
 
-```
-$ claude
-> Load my_data.csv and show me the first 5 rows
-
-Claude reads the file, writes Python code, runs it, and shows output.
-
-> Now create a bar chart of the 'category' column counts
-
-Claude generates matplotlib code, creates the chart, and saves it.
-
-> The colors are hard to read — use the Dartmouth color palette
-
-Claude updates the code and regenerates the chart.
-```
+1. **Constitution** — establish inviolable project principles
+2. **Specify** — describe what you want built
+3. **Clarify** — resolve ambiguities interactively
+4. **Plan** — generate an architecture and design doc
+5. **Tasks** — break the plan into ordered, actionable tasks
+6. **Implement** — execute tasks with verification at each step
 
 </div>
 
-The key pattern: **describe → review → refine → repeat**.
+<div class="note-box" data-title="Each step produces a document">
 
----
-
-## The classic four-step workflow
-
-<div class="note-box" data-title="From idea to implementation">
-
-| Step | What you do | What AI does |
-|-|-|-|
-| **1. Describe** | Explain what you want in plain English | Listens and asks clarifying questions |
-| **2. Design** | Agree on the approach and structure | Proposes architecture and components |
-| **3. Plan** | Review and approve the plan | Breaks work into concrete steps |
-| **4. Implement** | Verify each piece works correctly | Writes and runs the code |
-
-</div>
-
-This works well for small projects. For larger or more complex work, use **speckit**.
-
----
-
-## The speckit workflow
-
-<div class="definition-box" data-title="Spec-driven development">
-
-**speckit** is a structured approach to vibe coding: you write a **specification** first — describing *what* you want and *why* — then let AI plan and implement the solution.
-
-Think of it like writing a detailed recipe request before the chef starts cooking. The clearer your request, the better the meal.
+The document from each step becomes the source of truth for the next. This is how the sketch stays grounded as the project grows.
 
 </div>
 
 ---
+<!-- _class: scale-80 -->
 
-<!-- _class: scale-90 -->
-
-## The 6 speckit steps (part 1)
-
-<div class="example-box" data-title="Steps 1–3: Define the problem">
-
-**1. Constitution** — Define the ground rules for your project
-- "All code must be Python, runnable in Google Colab"
-- "Use matplotlib and seaborn for visualizations"
-
-**2. Specify** — Describe WHAT you want and WHY (never HOW)
-- "I need a tool that helps me explore correlations in survey data so I can find interesting patterns to investigate further"
-
-**3. Clarify** — The AI asks you targeted questions
-- "Should it handle missing data? How many variables? What kind of output?"
-
-</div>
-
----
-
-<!-- _class: scale-90 -->
-
-## The 6 speckit steps (part 2)
-
-<div class="example-box" data-title="Steps 4–6: Build the solution">
-
-**4. Plan** — AI proposes a technical architecture
-- Data loading module, correlation computation, visualization layer
-- You review and approve before any code is written
-
-**5. Tasks** — Break the plan into small, testable chunks
-- "Task 1: Load CSV and validate columns"
-- "Task 2: Compute pairwise correlations"
-- "Task 3: Generate heatmap visualization"
-
-**6. Implement** — Execute each task with verification
-- AI writes code, runs tests, and you confirm each piece works
-
-</div>
-
----
-
-## Writing a good spec
+# Writing a good spec
 
 <div class="warning-box" data-title="The golden rule">
 
-**Focus on WHAT and WHY, never HOW.**
-
-No programming languages, databases, frameworks, or APIs in the spec! Those are implementation details that the AI should decide (or that you'll discuss during the planning phase).
+Focus on **WHAT** and **WHY**, not **HOW**.
 
 </div>
 
-**Good:** "I need to visualize how survey responses cluster into groups so I can identify distinct participant profiles."
+<div class="tip-box" data-title="Good specs answer four questions">
 
-**Bad:** "Use scikit-learn KMeans with k=5 and plot with plotly in a Dash app using PostgreSQL."
-
----
-
-## Example spec
-
-<div class="example-box" data-title="A user story with acceptance scenarios">
-
-**As a** researcher analyzing survey data,
-**I want** an interactive visualization of response patterns,
-**So that** I can identify clusters of similar respondents.
-
-**Given** a CSV file with numeric survey responses,
-**When** I run the tool,
-**Then** it should display a 2D plot where similar respondents appear close together.
-
-**Given** the visualization is displayed,
-**When** I hover over a point,
-**Then** I should see that respondent's ID and key response values.
+- **What** are we building? (one sentence — the elevator pitch)
+- **How should it work** from the user's perspective? (the journey)
+- **What are the design constraints?** (platform, accessibility, privacy, aesthetics)
+- **What does "delightful" mean here?** (the thing that makes this project yours)
 
 </div>
 
 ---
+<!-- _class: scale-80 -->
 
-## Guided example: describe the project
+# Live demo: Assignment 3 warm-up
 
-<div class="example-box" data-title="Step 1: Start with a clear description">
+<div class="important-box" data-title="Let's build something delightful together!">
 
-Imagine you want to explore a dataset of movie ratings. You might say:
+Assignment 3 asks you to build something **delightful** — a fun game, a neat data visualization dashboard for a hobby, an interactive planetarium streaming public data, a generative art piece, a personal recommender, a quirky tool only *you* would love.
 
-> "I want a tool that loads a CSV of movie ratings, lets me filter by genre, and creates an interactive scatter plot showing rating vs. number of reviews. I want to be able to hover over points to see the movie title."
+**Right now, as a class**: let's pick something and spec it out together.
 
 </div>
 
-<div class="tip-box" data-title="Tip">
+<div class="example-box" data-title="Jumping-off ideas (not a prescription!)">
 
-Notice: no mention of specific libraries or implementation details. Just **what** you want and **why** it would be useful.
+- Interactive visualization of your Spotify listening history with hover annotations
+- "How well does your friend know you?" quiz generator from your shared texts
+- Browser planetarium that pulls tonight's sky from the NASA APIs
+- Generative art tied to live weather data from your hometown
+- Fantasy sports "what if?" explorer (swap trades, see season outcome)
 
 </div>
 
 ---
 
+# Spec-kit workflow for our demo
+
+```flow
+[Constitution] --> [Specify] --> [Clarify] --> [Plan] --> [Tasks] --> [Implement:purple]
+```
+
+<div class="note-box" data-title="Documents at each step">
+
+Each step produces a document that becomes the source of truth.
+
+</div>
+
+<div class="important-box" data-title="Why this matters">
+
+Everything stays grounded in a clear, unambiguous specification. No more "the LLM went off the rails" — because the rails are written down.
+
+</div>
+
+---
+<!-- _class: scale-80 -->
+
+# Constitution
+
+<div class="example-box" data-title="Prompt: /speckit.constitution">
+
+Create a constitution for this project with these principles:
+- Single HTML file (nothing to install, runs in any browser)
+- All processing runs client-side (no data sent to servers)
+- User delight: smooth animations, clean design, responsive feedback
+- Privacy: no personally identifiable information collected or transmitted
+- Works on both mobile and desktop browsers
+- Accessible design (WCAG 2.1 AA)
+
+</div>
+
+<div class="note-box" data-title="Output">
+
+A `constitution.md` with inviolable rules the LLM must respect in every subsequent step.
+
+</div>
+
+---
+<!-- _class: scale-70 -->
+
+# Specify
+
+<div class="example-box" data-title="Prompt: /speckit.specify">
+
+Build a *[your idea here]*. Single HTML file.
+
+User Journey:
+1. User lands on the page and sees *[opening hook]*
+2. They interact with *[core mechanic]*
+3. The page responds with *[delightful feedback]*
+4. At the end, user can share, save, or revisit
+
+Design goals:
+- Visually engaging but not cluttered
+- Feels delightful the first 10 seconds
+- Works without any setup or login
+
+</div>
+
+<div class="note-box" data-title="Output">
+
+A `spec.md` with user stories, acceptance criteria, and non-goals.
+
+</div>
+
+---
+<!-- _class: scale-80 -->
+
+# Clarify
+
+<div class="example-box" data-title="Prompt: /speckit.clarify">
+
+The agent will read your spec and ask things like:
+
+1. "What should happen if the public API is down or rate-limited?"
+2. "Should the animation run once or loop?"
+3. "How should the user enter their hometown — city name, ZIP, geolocation?"
+4. "What color palette best fits the mood — bright, muted, seasonal?"
+5. "What happens on first visit vs. returning visits?"
+
+</div>
+
+<div class="tip-box" data-title="This is where the magic happens">
+
+This is where vibe coding stops being a wish and becomes a plan. Answer these carefully — they're the ambiguities that would otherwise bite you during implementation.
+
+</div>
+
+---
+<!-- _class: scale-78 -->
+
+# Plan and tasks
+
+<div class="example-box" data-title="Prompt: /speckit.plan">
+
+Generate a plan for implementing the project and define success criteria for each milestone.
+
+</div>
+
+<div class="example-box" data-title="Prompt: /speckit.tasks">
+
+Break the implementation plan into discrete, ordered tasks with clear acceptance criteria for each task.
+
+</div>
+
+<div class="tip-box" data-title="Optional: /speckit.analyze">
+
+For complex projects, run this to identify inconsistencies, gaps, or potential issues in the spec or plan *before* you start implementing.
+
+</div>
+
+---
+<!-- _class: scale-78 -->
+
+# Implement
+
+<div class="example-box" data-title="Prompt: /speckit.implement">
+
+Launches an interactive coding session. The agent executes the plan task by task, generating code, running checks, and verifying each acceptance criterion before moving on.
+
+</div>
+
+<div class="note-box" data-title="Output">
+
+Whatever each task specifies: functions, modules, tests, documentation. A task is "done" only when its acceptance criteria are met.
+
+</div>
+
+<div class="tip-box" data-title="Babysitting">
+
+Claude will prompt you (often frequently) for permission to run code, execute commands, or change files. Read them carefully the first few times — then you can usually skim and click "yes" to keep things moving.
+
+</div>
+
+---
 <!-- _class: scale-90 -->
 
-## Guided example: spec and plan
+# Guiding principles
 
-<div class="example-box" data-title="Step 2: Use speckit to structure your thinking">
+<div class="definition-box" data-title="Simplicity">
 
-In Claude Code:
-```
-> /speckit.specify
-```
-
-The AI will help you turn your description into a formal spec, ask clarifying questions, then generate a plan:
-
-- **Data layer:** Load and validate the CSV, handle missing values
-- **Filter layer:** Genre selection with a dropdown
-- **Visualization layer:** Interactive scatter plot with hover tooltips
-- **Output:** Self-contained HTML file or Colab notebook
+"Simplicity is the art of maximizing the amount of work not done."
 
 </div>
 
-You review the plan and say "looks good" or "actually, I also want..."
+<div class="note-box" data-title="Five principles for effective vibe coding">
 
----
-
-## Guided example: implement and iterate
-
-<div class="example-box" data-title="Step 3: Build it piece by piece">
-
-```
-> /speckit.implement
-```
-
-Claude Code works through each task:
-1. Loads and validates `movies.csv` ✓
-2. Adds genre filter ✓
-3. Creates scatter plot... *but the axis labels are wrong*
-
-You catch the issue:
-```
-> The x-axis should be "Number of Reviews", not "Review Count".
-   Also, can you add a trend line?
-```
-
-Claude fixes it and continues.
-
-</div>
-
-<div class="warning-box" data-title="Verify and explain!">
-
-Before moving on: **read the generated code** and explain in your own words what each section does and why. This is the most important step!
-
-</div>
-
----
-
-## Verify and explain!
-
-<div class="warning-box" data-title="The most important habit in vibe coding">
-
-After every piece of generated code, ask yourself:
-
-1. **Can I explain** what this code does in plain English?
-2. **Does the output** match what I expected?
-3. **Have I tested** it with different inputs?
-4. **Could I describe** to someone else *why* each step is necessary?
-
-If the answer to any of these is "no," **stop and ask the AI to explain** before moving on. Never accept code you don't understand.
-
-</div>
-
----
-
-## Simplicity principles
-
-<div class="tip-box" data-title="Keep it simple">
-
-- **Spend time clarifying upfront** — 10 minutes of clear thinking saves hours of debugging
-- **Ambiguity is OK initially** — start vague, then refine as you learn more
-- **Continually simplify** — if a solution feels complicated, ask "is there a simpler way?"
-- **Single source of truth** — one file for data, one file for config, one file for output
-- **Keep your project clean** — delete experiments you're done with, organize what you keep
-
-</div>
-
----
-
-## Common pitfalls
-
-<div class="warning-box" data-title="Mistakes to avoid">
-
-- **Accepting code you don't understand** — The #1 mistake. Always verify and explain.
-- **Not testing** — Run the code with real data. Check edge cases. Look at the output.
-- **Vague prompts** — "Make it better" gives vague results. Be specific about what to change.
-- **Not iterating** — The first output is rarely perfect. Refine, refine, refine.
-- **Ignoring errors** — Read error messages carefully. They usually tell you exactly what's wrong.
-- **Over-specifying implementation** — Tell the AI *what* you want, not *how* to build it.
-
-</div>
-
----
-
-## When AI gets stuck
-
-<div class="tip-box" data-title="Strategies for getting unstuck">
-
-- **Break the problem smaller** — Instead of "build the whole thing," try "just load the data first"
-- **Provide more context** — Share example data, expected output, or error messages
-- **Try a different approach** — "That approach isn't working. Can you try a completely different method?"
-- **Ask AI to explain its reasoning** — "Walk me through your thought process step by step"
-- **Start fresh** — Sometimes a clean conversation works better than a long, tangled one
-- **Ask a human** — Office hours, classmates, and the course discussion board are all great resources
-
-</div>
-
----
-
-## Practice exercise: plan your project (1/2)
-
-Think of a simple data project you'd like to build. It could be:
-
-- A visualization of your favorite dataset
-- A tool that analyzes text from a book or article
-- An interactive chart comparing statistics across categories
-
-<div class="example-box" data-title="Write your spec">
-
-1. **What** do you want to build? (2-3 sentences)
-2. **Why** is it interesting or useful? (1-2 sentences)
-3. **What should happen** when it works? (Given/When/Then format)
-
-</div>
-
----
-
-## Practice exercise: build it! (2/2)
-
-Now use the vibe coding workflow:
-
-<div class="example-box" data-title="Follow these steps">
-
-1. Open Claude Code (or claude.dartmouth.edu)
-2. Share your spec from the previous slide
-3. Let the AI ask clarifying questions — answer them!
-4. Review the proposed plan
-5. Implement step by step
-6. Test with real data
-
-</div>
-
-<div class="warning-box" data-title="Verify and explain!">
-
-Before you call it done: **read every section of the generated code** and explain in your own words what it does and why. If you can't explain it, you're not done yet.
-
-</div>
-
----
-
-## Summary + resources
-
-**Key takeaways:**
-- Vibe coding lets you focus on **thinking** while AI handles **syntax**
-- Always **verify and explain** — never accept code you don't understand
-- Start with **what** and **why**, not **how**
-- **Iterate** — the first output is a draft, not a final product
-
-<div class="tip-box" data-title="Resources">
-
-- **[chat.dartmouth.edu](https://chat.dartmouth.edu)** — Multi-model AI chat (free with Dartmouth credentials)
-- **[claude.dartmouth.edu](https://claude.dartmouth.edu)** — Dedicated Claude access
-- **[Claude Code docs](https://docs.anthropic.com/en/docs/claude-code)** — Installation and usage guide
-- **[speckit](https://github.com/ContextLab/speckit)** — Spec-driven development toolkit
+1. **Over-specify on purpose** — vague prompts produce vague code
+2. **Start small** — get a working prototype before adding features
+3. **Verify everything** — never trust AI output without checking it
+4. **Iterate rapidly** — small changes, frequent testing
+5. **Document as you go** — your future self (and your AI) will thank you
 
 </div>
 
@@ -483,15 +485,8 @@ Before you call it done: **read every section of the generated code** and explai
 
 <div class="note-box" data-title="Up next...">
 
-- **Friday:** Assignment 3 brainstorm + release
+- **Monday:** watch and get feedback on data stories about something you built with vibe coding! (Assignment 3)
+- **Wednesday**: no class (I'll be out of town)
+- **Thursday and Friday**: dive into a dataset as a class, from a local community group
 
 </div>
-
-
-<!-- Donoghue et al. integration tracking (FR-009):
-  1. Creative problem solving (§3) → implemented in Assignment 3 (separate file)
-  2. Automation-resilient skills (§3.5) → slide 3 "Why vibe coding matters"
-  3. Data literacy over syntax (§3.1) → implemented in Module 4 reworks (separate files)
-  4. Teaching how to get unstuck (§4.4) → slide 22 "When AI gets stuck" + demos deck
-  5. Practical relevant tooling (§4.2) → slides 5-9 Dartmouth AI tools + Claude Code
--->
